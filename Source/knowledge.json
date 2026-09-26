@@ -1,0 +1,54 @@
+[
+    {
+        "answer": "I am Chatbot Assistant, a simple AI chatbot project.",
+        "question": "what is your name"
+    },
+    {
+        "answer": "I am Chatbot Assistant. I can answer questions and help with common tasks.",
+        "question": "who are you"
+    },
+    {
+        "answer": "I can answer questions, use predefined knowledge, read supported files, and use the Groq AI API.",
+        "question": "what can you do"
+    },
+    {
+        "answer": "The chatbot first checks keywords and predefined knowledge. If there is no matching answer, it can ask the Groq AI API.",
+        "question": "how does this chatbot work"
+    },
+    {
+        "answer": "A chatbot is a program that communicates with users through text-based conversation.",
+        "question": "what is a chatbot"
+    },
+    {
+        "answer": "C++ is a general-purpose programming language used to build many types of software.",
+        "question": "what is c++"
+    },
+    {
+        "answer": "HTML is the standard markup language used to structure web pages.",
+        "question": "what is html"
+    },
+    {
+        "answer": "CSS is used to style and design web pages.",
+        "question": "what is css"
+    },
+    {
+        "answer": "JavaScript is a programming language commonly used to make web pages interactive.",
+        "question": "what is javascript"
+    },
+    {
+        "answer": "An API is a way for two software systems to communicate with each other.",
+        "question": "what is an api"
+    },
+    {
+        "answer": "Artificial Intelligence is technology that enables computers to perform tasks that normally require human-like intelligence.",
+        "question": "what is ai"
+    },
+    {
+        "answer": "File handling means creating, reading, writing, and updating data stored in files.",
+        "question": "what is file handling"
+    },
+    {
+        "answer": "MR. ASUTOSH SAHU",
+        "question": "Owner Name"
+    }
+]
