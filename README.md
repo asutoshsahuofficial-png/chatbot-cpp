@@ -596,3 +596,21 @@ Local Knowledge Base
       =
 AI Chatbot Assistant
 ```
+
+# ⭐ To Execute
+
+First, open **MSYS2 UCRT64** in the project's `Source` folder.
+
+Then, compile the C++ backend using:
+
+```bash
+g++ -std=c++17 -O2 -I. chatbot.cpp -o chatbot_updated.exe -static-libgcc -static-libstdc++ -lcurl -lws2_32 -lwinpthread
+```
+
+After the compilation is completed successfully, run the application with:
+
+```bash
+./chatbot_updated.exe
+```
+
+The chatbot backend will start and can then be accessed through the web browser.
