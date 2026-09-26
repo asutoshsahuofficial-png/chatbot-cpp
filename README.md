@@ -543,7 +543,7 @@ Potential improvements include:
 
 ---
 
-# 👨‍💻 Author
+# 👨💻 Author
 
 **Asutosh Sahu**
 
