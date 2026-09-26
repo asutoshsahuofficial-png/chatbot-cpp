@@ -1,0 +1,5 @@
+.env
+*.exe
+*.tmp
+chat_history.json
+knowledge.json

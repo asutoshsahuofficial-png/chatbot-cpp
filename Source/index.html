@@ -1,0 +1,1803 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Chatbot AI Assistant — Ask questions, explore ideas, and get fast answers powered by Groq AI. Built with C++, JavaScript, HTML, and CSS."
+    />
+    <meta name="theme-color" content="#1a1a2e" />
+
+    <title>Chatbot AI</title>
+
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✦</text></svg>">
+    <link rel="stylesheet" href="style.css?v=3" />
+
+    <!-- Small UI refinements -->
+
+    <!-- ======================================================
+         ADDITIVE 10/10 VISUAL ENHANCEMENTS
+         Original code above is intentionally preserved.
+         ====================================================== -->
+
+    <!-- ======================================================
+         SAME-INDEX WELCOME SCREEN
+         Original HTML is preserved. This is an additive overlay.
+         ====================================================== -->
+  </head>
+
+  <body>
+    <!-- ======================================================
+         SAME-INDEX WELCOME SCREEN
+         ====================================================== -->
+    <div id="entryWelcomeScreen" aria-label="Welcome screen">
+      <div class="welcome-orb orb-a" aria-hidden="true"></div>
+      <div class="welcome-orb orb-b" aria-hidden="true"></div>
+      <div class="welcome-orb orb-c" aria-hidden="true"></div>
+
+      <section class="welcome-panel" aria-labelledby="welcomeTitle">
+        <div class="welcome-logo" aria-hidden="true">✦</div>
+
+        <div class="welcome-kicker">⚡ AI-POWERED CHAT ASSISTANT</div>
+
+        <h1 id="welcomeTitle">
+          Your AI Assistant,
+          <span>Ready to Chat.</span>
+        </h1>
+
+        <p class="welcome-copy">
+          Ask questions, explore ideas, and get fast, helpful answers in one
+          simple conversation.
+        </p>
+
+        <button id="enterChatbotButton" class="welcome-enter" type="button">
+          Start Chatting →
+        </button>
+
+        <div class="welcome-meta">
+          <span><i class="meta-dot" aria-hidden="true"></i> Online</span>
+          <span>⚡ Powered by Groq AI</span>
+          <span>🔒 Simple &amp; Private</span>
+        </div>
+
+        <div class="welcome-note">Built with C++ • JavaScript • HTML • CSS</div>
+      </section>
+    </div>
+
+    <!-- ======================================================
+         APP SHELL
+         ====================================================== -->
+
+    <div class="app-shell">
+      <!-- ====================================================
+           SIDEBAR
+           ==================================================== -->
+
+      <aside class="sidebar">
+        <!-- ==================================================
+             BRAND
+             ================================================== -->
+
+        <div class="brand-section">
+          <div class="brand-mark">Chatbot AI</div>
+
+          <div class="brand-subtitle">Your AI Chat Assistant</div>
+        </div>
+
+        <!-- ==================================================
+             NAVIGATION
+             ================================================== -->
+
+        <nav class="nav">
+          <!-- ================= NEW CHAT ================= -->
+
+          <button
+            class="nav-item active"
+            data-section="chat-section"
+            type="button"
+          >
+            <span class="nav-icon" aria-hidden="true"> ➕ </span>
+
+            <span> New Chat </span>
+          </button>
+
+          <!-- ================= HISTORY ================= -->
+
+          <button class="nav-item" data-section="history-section" type="button">
+            <span class="nav-icon" aria-hidden="true"> ⌚ </span>
+
+            <span> Recent Conversations </span>
+          </button>
+
+          <!-- ================= SAVED ANSWERS ================= -->
+
+          <button class="nav-item" data-section="saved-section" type="button">
+            <span class="nav-icon" aria-hidden="true"> ❤️ </span>
+
+            <span> Saved Answers </span>
+          </button>
+
+          <button
+            class="nav-item"
+            data-section="knowledge-section"
+            type="button"
+          >
+            <span class="nav-icon" aria-hidden="true"> 🧠 </span>
+
+            <span> Knowledge & FAQ </span>
+          </button>
+
+          <!-- ================= DIVIDER ================= -->
+
+          <div class="nav-divider"></div>
+
+          <!-- ================= SETTINGS ================= -->
+
+          <button
+            class="nav-item"
+            data-section="settings-section"
+            type="button"
+          >
+            <span class="nav-icon" aria-hidden="true"> 🛠️ </span>
+
+            <span> Settings </span>
+          </button>
+
+          <!-- ================= ABOUT ================= -->
+
+          <button class="nav-item" data-section="about-section" type="button">
+            <span class="nav-icon" aria-hidden="true"> ℹ️ </span>
+
+            <span> About Us </span>
+          </button>
+        </nav>
+
+        <!-- ==================================================
+             SIDEBAR FOOTER
+             ================================================== -->
+
+        <div class="sidebar-footer">
+          <div>🧠 A Smarter Way to Converse</div>
+        </div>
+      </aside>
+
+      <!-- ====================================================
+           MAIN
+           ==================================================== -->
+
+      <main class="main">
+        <!-- ==================================================
+             TOP BAR
+             ================================================== -->
+
+        <header class="topbar">
+          <!-- ================= ASSISTANT ================= -->
+
+          <div class="assistant-identity">
+            <div class="avatar avatar-small">✦</div>
+
+            <div class="identity-text">
+              <h1>Chatbot Assistant</h1>
+
+              <p>
+                <span class="online-dot"></span>
+
+                AI Chat Assistant
+              </p>
+            </div>
+          </div>
+
+          <!-- ================= INDIA TIME ================= -->
+
+          <div class="current-time" id="currentTime">07 Sep 2026, 06:30 PM</div>
+
+          <!-- ================= EXIT ================= -->
+
+          <button class="exit-btn" id="exitBtn" type="button">Exit</button>
+        </header>
+
+        <!-- ==================================================
+             CHAT SECTION
+             ================================================== -->
+
+        <section class="content-section active-section" id="chat-section">
+          <!-- =================================================
+               CHAT WINDOW
+               ================================================= -->
+
+          <div class="chat" id="chat">
+            <!-- ================= EMPTY CHAT WELCOME ================= -->
+
+            <div class="welcome-state">
+              <div class="welcome-icon">👋</div>
+
+              <h2>Welcome to Chatbot AI</h2>
+
+              <p>
+                Ask me anything, explore ideas, or get help with everyday
+                questions.
+              </p>
+            </div>
+          </div>
+
+          <!-- =================================================
+               COMPOSER
+               ================================================= -->
+
+          <section class="composer">
+            <!-- ================= QUICK ACTIONS ================= -->
+
+            <div class="quick-actions">
+              <button
+                class="quick-action"
+                data-prompt="Explain artificial intelligence in simple words"
+                type="button"
+              >
+                <span class="quick-icon">💡</span>
+                Explain AI simply
+              </button>
+
+              <button
+                class="quick-action"
+                data-prompt="Write a professional email for me"
+                type="button"
+              >
+                <span class="quick-icon">✍️</span>
+                Write a professional email
+              </button>
+
+              <button
+                class="quick-action"
+                data-prompt="Give me some useful project ideas"
+                type="button"
+              >
+                <span class="quick-icon">🧠</span>
+                Give me project ideas
+              </button>
+            </div>
+
+            <!-- ================= INPUT BAR ================= -->
+
+            <form class="input-bar" id="promptForm">
+              <input
+                id="promptInput"
+                type="text"
+                placeholder="Type your question..."
+                autocomplete="off"
+              />
+
+              <button type="submit" class="tool-btn" aria-label="Send">
+                ➤
+              </button>
+            </form>
+          </section>
+
+          <!-- =================================================
+               MAIN FOOTER
+               ================================================= -->
+
+          <footer class="main-footer">
+            <span> Powered by Groq AI </span>
+
+            <span class="footer-divider"> | </span>
+
+            <span> Fast • Simple • Helpful </span>
+          </footer>
+        </section>
+
+        <!-- ==================================================
+             RECENT CONVERSATIONS
+             ================================================== -->
+
+        <section class="content-section info-section" id="history-section">
+          <div class="page-content">
+            <h2>Recent Conversations</h2>
+
+            <p class="page-subtitle">View your recent chatbot conversations.</p>
+
+            <div class="info-card">
+              <div class="history-card-header">
+                <h3>Recent Chats</h3>
+                <button
+                  id="exportHistoryButton"
+                  class="history-export-btn"
+                  type="button"
+                  title="Export chat history as text file"
+                >
+                  📥 Export
+                </button>
+                <button
+                  id="clearHistoryButton"
+                  class="history-clear-btn"
+                  type="button"
+                  aria-label="Clear all recent conversations"
+                >
+                  Clear All
+                </button>
+              </div>
+
+              <div id="historyList" class="history-list">
+                <div
+                  class="history-item"
+                  data-message="What EHR systems do you integrate with?"
+                >
+                  <span> 💬 </span>
+
+                  <div>
+                    <strong> EHR System Integrations </strong>
+
+                    <p>What EHR systems do you integrate with?</p>
+                  </div>
+                </div>
+
+                <div
+                  class="history-item"
+                  data-message="I'd like to get a pricing estimate."
+                >
+                  <span> 💬 </span>
+
+                  <div>
+                    <strong> Pricing Information </strong>
+
+                    <p>I'd like to get a pricing estimate.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================================================
+             SAVED ANSWERS
+             ================================================== -->
+
+        <section class="content-section info-section" id="saved-section">
+          <div class="page-content">
+            <h2>Saved Answers</h2>
+
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-end;
+              "
+            >
+              <p class="page-subtitle">
+                Access answers you have saved for future reference.
+              </p>
+              <button
+                id="clearSavedAnswersBtn"
+                class="history-clear-btn"
+                style="
+                  margin-bottom: 1rem;
+                  border-radius: 4px;
+                  border: 1px solid var(--danger, #e74c3c);
+                  color: var(--danger, #e74c3c);
+                  background: transparent;
+                  padding: 4px 8px;
+                  cursor: pointer;
+                "
+              >
+                Clear All
+              </button>
+            </div>
+
+            <div class="info-card saved-card">
+              <div class="empty-state">
+                <div class="empty-icon">♡</div>
+
+                <h3>No Saved Answers</h3>
+
+                <p>Your saved chatbot answers will appear here.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================================================
+             KNOWLEDGE & FAQ
+             ================================================== -->
+
+        <section class="content-section info-section" id="knowledge-section">
+          <div class="page-content">
+            <h2>🧠 Knowledge &amp; FAQ</h2>
+
+            <p class="page-subtitle">
+              Manage predefined questions and answers stored in knowledge.txt.
+            </p>
+
+            <div class="info-card knowledge-info-card">
+              <h3>How it works</h3>
+              <p>
+                The chatbot checks greetings and keywords first. Then it checks
+                this knowledge file. If there is no match, it can ask the Groq
+                AI API. You can add, edit, or delete knowledge here.
+              </p>
+            </div>
+
+            <div class="info-card admin-card" id="adminAccessCard">
+              <div class="knowledge-list-header">
+                <div>
+                  <h3>🔐 Admin Mode</h3>
+                  <p>
+                    Admin access is required for adding, editing, and deleting
+                    FAQ entries.
+                  </p>
+                </div>
+                <span id="adminStatusBadge" class="admin-status-badge locked"
+                  >Locked</span
+                >
+              </div>
+              <div class="admin-login-row">
+                <div style="position: relative; flex: 1">
+                  <input
+                    id="adminPassword"
+                    type="password"
+                    placeholder="Enter admin password"
+                    autocomplete="current-password"
+                    style="width: 100%; height: 100%; padding-right: 40px"
+                  />
+                  <button
+                    id="toggleAdminVisBtn"
+                    type="button"
+                    title="Show/Hide Password"
+                    style="
+                      position: absolute;
+                      right: 10px;
+                      top: 50%;
+                      transform: translateY(-50%);
+                      background: none;
+                      border: none;
+                      cursor: pointer;
+                      color: var(--text-muted);
+                      font-size: 1.2rem;
+                      padding: 0;
+                    "
+                  >
+                    👁️
+                  </button>
+                </div>
+                <button
+                  id="adminLoginButton"
+                  class="knowledge-primary-btn"
+                  type="button"
+                >
+                  Unlock
+                </button>
+                <button
+                  id="adminLogoutButton"
+                  class="knowledge-secondary-btn"
+                  type="button"
+                  hidden
+                >
+                  Lock
+                </button>
+              </div>
+              <p
+                id="adminMessage"
+                class="knowledge-message"
+                aria-live="polite"
+              ></p>
+            </div>
+
+            <div class="info-card" id="knowledgeAddCard">
+              <h3 id="knowledgeFormTitle">Add Question &amp; Answer</h3>
+
+              <div class="knowledge-form-grid">
+                <label>
+                  <span>Question</span>
+                  <input
+                    id="knowledgeQuestion"
+                    type="text"
+                    placeholder="Example: What is C++?"
+                    autocomplete="off"
+                  />
+                </label>
+
+                <label>
+                  <span>Answer</span>
+                  <textarea
+                    id="knowledgeAnswer"
+                    rows="4"
+                    placeholder="Type the answer here..."
+                  ></textarea>
+                </label>
+              </div>
+
+              <div class="knowledge-form-actions">
+                <button
+                  id="knowledgeSaveButton"
+                  class="knowledge-primary-btn"
+                  type="button"
+                >
+                  Add Question
+                </button>
+                <button
+                  id="knowledgeCancelButton"
+                  class="knowledge-secondary-btn"
+                  type="button"
+                  hidden
+                >
+                  Cancel Edit
+                </button>
+              </div>
+
+              <p
+                id="knowledgeMessage"
+                class="knowledge-message"
+                aria-live="polite"
+              ></p>
+            </div>
+
+            <div class="info-card">
+              <div class="knowledge-list-header">
+                <div>
+                  <h3>Frequently Asked Questions</h3>
+                  <p>
+                    These questions are also used as the chatbot's predefined
+                    knowledge.
+                  </p>
+                </div>
+                <button
+                  id="knowledgeReloadButton"
+                  class="knowledge-secondary-btn"
+                  type="button"
+                >
+                  Reload
+                </button>
+              </div>
+
+              <div class="knowledge-filter-row">
+                <label>
+                  <span>Category</span>
+                  <select id="knowledgeCategoryFilter">
+                    <option value="all">All Categories</option>
+                  </select>
+                </label>
+                <label class="knowledge-search-label">
+                  <span>Search FAQs</span>
+                  <input
+                    id="knowledgeSearch"
+                    type="search"
+                    placeholder="Search questions..."
+                    autocomplete="off"
+                  />
+                </label>
+              </div>
+
+              <div id="knowledgeList" class="knowledge-list">
+                <div class="knowledge-empty-state">Loading knowledge...</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================================================
+             ABOUT US
+             ================================================== -->
+
+        <section class="content-section info-section" id="about-section">
+          <div class="page-content">
+            <h2>ℹ️ About Us</h2>
+
+            <p class="page-subtitle">Learn more about Chatbot Assistant.</p>
+
+            <!-- ABOUT -->
+
+            <div class="info-card">
+              <h3>About Chatbot Assistant</h3>
+
+              <p>
+                Chatbot Assistant is a smart and user-friendly application that
+                provides quick and helpful responses. Built using C++,
+                JavaScript, HTML, and CSS, it offers features like interactive
+                conversations, chat history, saved answers, and an easy-to-use
+                interface.
+              </p>
+
+              <div class="groq-badge">⚡ Powered by Groq API</div>
+            </div>
+
+            <!-- FEATURES -->
+
+            <div class="info-card">
+              <h3>Features</h3>
+
+              <div class="feature-grid">
+                <div class="feature-item">
+                  <span> 💬 </span>
+
+                  <strong> Smart Conversation </strong>
+                </div>
+
+                <div class="feature-item">
+                  <span> ⚡ </span>
+
+                  <strong> Quick Responses </strong>
+                </div>
+
+                <div class="feature-item">
+                  <span> 📜 </span>
+
+                  <strong> Conversation History </strong>
+                </div>
+
+                <div class="feature-item">
+                  <span> 🧠 </span>
+
+                  <strong> Knowledge &amp; FAQ </strong>
+                </div>
+
+                <div class="feature-item">
+                  <span> 🔖 </span>
+
+                  <strong> Saved Answers </strong>
+                </div>
+
+                <div class="feature-item">
+                  <span> 📝 </span>
+
+                  <strong> Add &amp; Update Q&amp;A </strong>
+                </div>
+
+                <div class="feature-item">
+                  <span> 🔐 </span>
+
+                  <strong> Admin Knowledge Mode </strong>
+                </div>
+
+                <div class="feature-item">
+                  <span> 🎯 </span>
+
+                  <strong> Smart FAQ Matching </strong>
+                </div>
+
+                <div class="feature-item">
+                  <span> 🔗 </span>
+
+                  <strong> System Integrations </strong>
+                </div>
+
+                <div class="feature-item">
+                  <span> 🎨 </span>
+
+                  <strong> User-Friendly Interface </strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- PROJECT INFORMATION -->
+
+            <div class="info-card">
+              <h3>Project Information</h3>
+
+              <div class="project-info">
+                <p>
+                  <strong> Project Name: </strong>
+
+                  Chatbot Assistant
+                </p>
+
+                <p>
+                  <strong> Version: </strong>
+
+                  3.8.9
+                </p>
+
+                <p>
+                  <strong> Technology: </strong>
+
+                  C++, HTML, CSS, JavaScript &amp; Groq API
+                </p>
+
+                <p>
+                  <strong> Developed by: </strong>
+
+                  Asutosh Sahu, Subhashree Sahu, Sahil Setha &amp; Subham Behera
+                </p>
+
+                <p>
+                  <strong> Project Type: </strong>
+
+                  Semester 2 Academic Project
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================================================
+             SETTINGS
+             ================================================== -->
+
+        <section class="content-section info-section" id="settings-section">
+          <div class="page-content">
+            <h2>⚙️ Settings</h2>
+
+            <p class="page-subtitle">Customize your chatbot experience.</p>
+
+            <!-- ================= APPEARANCE ================= -->
+
+            <div class="info-card">
+              <h3>Appearance</h3>
+
+              <div class="setting-row">
+                <div>
+                  <strong> Dark Mode </strong>
+
+                  <p>Switch between light and dark themes.</p>
+                </div>
+
+                <label class="switch">
+                  <input type="checkbox" id="darkModeToggle" />
+
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+
+            <!-- ================= CHAT SETTINGS ================= -->
+
+            <div class="info-card">
+              <h3>Chat Settings</h3>
+
+              <div class="setting-row">
+                <div>
+                  <strong> Show Timestamps </strong>
+
+                  <p>Display time below chat messages.</p>
+                </div>
+
+                <label class="switch">
+                  <input type="checkbox" id="timestampToggle" checked />
+
+                  <span class="slider"></span>
+                </label>
+              </div>
+
+              <div class="setting-row">
+                <div>
+                  <strong> Sound Notifications </strong>
+
+                  <p>Enable notification sounds.</p>
+                </div>
+
+                <label class="switch">
+                  <input type="checkbox" id="soundToggle" />
+
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- ======================================================
+         MARKDOWN & HIGHLIGHT JS
+         ====================================================== -->
+    <script src="vendor/purify.min.js"></script>
+    <script src="vendor/marked.min.js"></script>
+    <script src="vendor/highlight.min.js"></script>
+    <link rel="stylesheet" href="vendor/github-dark.min.css" />
+
+    <!-- ======================================================
+         JAVASCRIPT
+         ====================================================== -->
+
+    <script src="script.js?v=5"></script>
+
+    <!-- ======================================================
+         CONSOLIDATED UI / BEHAVIOR LAYER
+         ------------------------------------------------------
+         Keeps the existing HTML structure and external
+         script.js/Groq flow intact.
+
+         This replaces the previous overlapping enhancement
+         scripts with ONE guarded MutationObserver and one
+         consolidated event layer. That avoids:
+         - recursive error-card creation
+         - multiple competing observers
+         - duplicate Edit buttons
+         - stuck "thinking" indicators
+         - broad false-positive error detection
+         - floating/misplaced Edit controls
+         ====================================================== -->
+    <script id="chatbot-ui-behavior">
+      (() => {
+        "use strict";
+
+        const chat = document.getElementById("chat");
+        const form = document.getElementById("promptForm");
+        const input = document.getElementById("promptInput");
+        const welcome = document.getElementById("entryWelcomeScreen");
+        const enterButton = document.getElementById("enterChatbotButton");
+
+        if (!chat) return;
+
+        let lastPrompt = "";
+        let editActive = false;
+        let observerQueued = false;
+
+        /* ------------------------------------------------------
+           DOM / selector definitions
+           ------------------------------------------------------ */
+
+        const USER_SELECTORS = [
+          ".user-message",
+          ".user-bubble",
+          ".user-msg",
+          ".message.user",
+          ".chat-message.user",
+          ".message--user",
+          ".chat-message--user",
+          '[data-role="user"]',
+          '[data-message-role="user"]',
+        ];
+
+        const MESSAGE_SELECTORS = [
+          ".message",
+          ".chat-message",
+          ".message-bubble",
+          ".chat-bubble",
+        ];
+
+        /*
+         * Deliberately specific error phrases.
+         * Do NOT use a generic "try again" match because a normal
+         * AI answer may legitimately contain those words.
+         */
+        const ERROR_PATTERN =
+          /connection error|couldn['’]t connect|could not connect|unable to connect|unable to reach (?:the )?AI server|AI server (?:is )?(?:offline|unavailable)|invalid response/i;
+
+        const RETRY_SELECTOR =
+          'button[data-retry-button="true"], button.retry-btn';
+
+        const CLEAN_TEXT_REMOVE_SELECTOR =
+          ".user-edit-row, .message-actions, button, .timestamp, time";
+
+        /* ------------------------------------------------------
+           Small helper functions
+           ------------------------------------------------------ */
+
+        const cleanText = (element) => {
+          if (!element) return "";
+
+          const clone = element.cloneNode(true);
+
+          clone
+            .querySelectorAll(CLEAN_TEXT_REMOVE_SELECTOR)
+            .forEach((node) => node.remove());
+
+          return (clone.innerText || clone.textContent || "")
+            .replace(/\s+/g, " ")
+            .trim();
+        };
+
+        const isUserElement = (element) => {
+          if (!element || element.nodeType !== 1) {
+            return false;
+          }
+
+          const className = String(element.className || "").toLowerCase();
+
+          if (
+            /(^|[\s_-])(user-message|user-bubble|user-msg|message--user|chat-message--user)([\s_-]|$)/.test(
+              className,
+            )
+          ) {
+            return true;
+          }
+
+          if (className.split(/\s+/).includes("user")) {
+            return true;
+          }
+
+          const role = String(
+            element.getAttribute("data-role") ||
+              element.getAttribute("data-message-role") ||
+              element.dataset.role ||
+              element.dataset.messageRole ||
+              "",
+          ).toLowerCase();
+
+          if (role === "user") {
+            return true;
+          }
+
+          /*
+           * Conservative visual fallback only for known message
+           * wrappers. This prevents arbitrary right-aligned page
+           * elements from receiving an Edit button.
+           */
+          if (MESSAGE_SELECTORS.some((selector) => element.matches(selector))) {
+            const styleText = String(
+              element.getAttribute("style") || "",
+            ).toLowerCase();
+
+            if (
+              styleText.includes("text-align: right") ||
+              styleText.includes("justify-content: flex-end") ||
+              styleText.includes("align-self: flex-end") ||
+              styleText.includes("margin-left: auto")
+            ) {
+              return true;
+            }
+
+            try {
+              const computed = window.getComputedStyle(element);
+
+              return (
+                computed.textAlign === "right" ||
+                computed.alignSelf === "flex-end" ||
+                computed.justifyContent === "flex-end" ||
+                computed.marginLeft === "auto"
+              );
+            } catch (_) {
+              return false;
+            }
+          }
+
+          return false;
+        };
+
+        const findUserElements = () => {
+          const seen = new Set();
+          const result = [];
+
+          USER_SELECTORS.forEach((selector) => {
+            chat.querySelectorAll(selector).forEach((element) => {
+              if (!seen.has(element)) {
+                seen.add(element);
+                result.push(element);
+              }
+            });
+          });
+
+          /*
+           * Fallback only within actual chat-message wrappers.
+           */
+          MESSAGE_SELECTORS.forEach((selector) => {
+            chat.querySelectorAll(selector).forEach((element) => {
+              if (!seen.has(element) && isUserElement(element)) {
+                seen.add(element);
+                result.push(element);
+              }
+            });
+          });
+
+          /*
+           * Prefer the deepest/most specific user element when a
+           * wrapper contains another user element.
+           */
+          return result.filter(
+            (element) =>
+              !result.some(
+                (other) => other !== element && other.contains(element),
+              ),
+          );
+        };
+
+        const removeTyping = () => {
+          chat
+            .querySelectorAll(".typing-indicator")
+            .forEach((indicator) => indicator.remove());
+        };
+
+        const showTyping = () => {
+          if (
+            chat.querySelector(".connection-error") ||
+            chat.querySelector(".typing-indicator")
+          ) {
+            return;
+          }
+
+          const typing = document.createElement("div");
+
+          typing.className = "typing-indicator";
+
+          typing.setAttribute("role", "status");
+
+          typing.setAttribute("aria-live", "polite");
+
+          typing.innerHTML =
+            "<span>✦ Chatbot AI is thinking</span>" +
+            '<span class="typing-dots">' +
+            "<i></i><i></i><i></i>" +
+            "</span>";
+
+          chat.appendChild(typing);
+
+          chat.scrollTop = chat.scrollHeight;
+        };
+
+        /* ------------------------------------------------------
+           Welcome screen
+           ------------------------------------------------------ */
+
+        const closeWelcome = () => {
+          if (!welcome) return;
+
+          welcome.classList.add("hidden");
+
+          window.setTimeout(() => {
+            welcome.remove();
+
+            input?.focus();
+          }, 450);
+        };
+
+        enterButton?.addEventListener("click", closeWelcome);
+
+        document.addEventListener("keydown", (event) => {
+          if (
+            event.key === "Escape" &&
+            document.getElementById("entryWelcomeScreen")
+          ) {
+            closeWelcome();
+          }
+        });
+
+        /* ------------------------------------------------------
+           Branding / copy refinements
+           ------------------------------------------------------ */
+
+        const heading = document.querySelector(".identity-text h1");
+
+        const status = document.querySelector(".identity-text p");
+
+        if (heading) {
+          heading.textContent = "Chatbot AI";
+        }
+
+        if (status) {
+          const dot = status.querySelector(".online-dot");
+
+          status.textContent = "";
+
+          if (dot) {
+            status.appendChild(dot);
+          }
+
+          status.append("Online · Powered by Groq AI");
+        }
+
+        const quickData = [
+          ["💡", "Explain AI simply"],
+          ["✍️", "Write something"],
+          ["🧠", "Brainstorm ideas"],
+        ];
+
+        document.querySelectorAll(".quick-action").forEach((button, index) => {
+          const data = quickData[index];
+
+          if (!data) return;
+
+          const icon = button.querySelector(".quick-icon");
+
+          if (icon) {
+            icon.textContent = data[0];
+          }
+
+          const textNode = [...button.childNodes].find(
+            (node) =>
+              node.nodeType === Node.TEXT_NODE && node.textContent.trim(),
+          );
+
+          if (textNode) {
+            textNode.textContent = " " + data[1];
+          }
+        });
+
+        document.querySelectorAll(".feature-item strong").forEach((element) => {
+          if (element.textContent.includes("System Integrations")) {
+            element.textContent = "Code Assistance";
+
+            const icon = element.parentElement?.querySelector("span");
+
+            if (icon) {
+              icon.textContent = " 💻 ";
+            }
+          }
+        });
+
+        /*
+         * The large entry welcome is the primary welcome screen.
+         * Keep the small in-chat welcome simple.
+         */
+        document
+          .querySelector(".welcome-state")
+          ?.querySelector(".welcome-tagline, .welcome-topics")
+          ?.remove();
+
+        /* ------------------------------------------------------
+           Code block enhancement
+           ------------------------------------------------------ */
+
+        const escapeHtml = (value) =>
+          String(value).replace(
+            /[&<>"']/g,
+            (character) =>
+              ({
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#039;",
+              })[character],
+          );
+
+        const highlightCpp = (code) => {
+          let html = escapeHtml(code);
+
+          html = html.replace(
+            /(\/\/.*)/g,
+            '<span class="cpp-comment">$1</span>',
+          );
+
+          html = html.replace(
+            /\b(int|float|double|char|bool|void|long|short|string|auto)\b/g,
+            '<span class="cpp-type">$1</span>',
+          );
+
+          html = html.replace(
+            /\b(class|public|private|protected|return|if|else|for|while|using|namespace|new|delete|const|static|virtual|template|typename)\b/g,
+            '<span class="cpp-keyword">$1</span>',
+          );
+
+          html = html.replace(
+            /(&quot;.*?&quot;)/g,
+            '<span class="cpp-string">$1</span>',
+          );
+
+          html = html.replace(
+            /\b(\d+)\b/g,
+            '<span class="cpp-number">$1</span>',
+          );
+
+          return html;
+        };
+
+        const enhanceCodeBlocks = () => {
+          chat.querySelectorAll("p, div, span").forEach((element) => {
+            if (element.dataset.codeEnhanced || element.children.length > 0) {
+              return;
+            }
+
+            const value = element.textContent.trim();
+
+            const match = value.match(
+              /```(?:cpp|c\+\+|C\+\+)?\s*\n([\s\S]*?)```/i,
+            );
+
+            if (!match) return;
+
+            const code = match[1].trim();
+
+            if (!code) return;
+
+            const card = document.createElement("div");
+
+            card.className = "code-card";
+
+            card.innerHTML = `
+                  <div class="code-card-header">
+                    <span>C++</span>
+                    <button
+                      class="code-copy"
+                      type="button"
+                    >
+                      Copy
+                    </button>
+                  </div>
+                  <pre><code>${highlightCpp(code)}</code></pre>
+                `;
+
+            element.dataset.codeEnhanced = "true";
+
+            element.replaceWith(card);
+          });
+        };
+
+        /* ------------------------------------------------------
+           Message action buttons
+           ------------------------------------------------------ */
+
+        const addMessageActions = () => {
+          chat
+            .querySelectorAll(
+              ".message, .chat-message, .bot-message, .assistant-message, .message-bubble, .chat-bubble",
+            )
+            .forEach((message) => {
+              if (
+                message.dataset.actionsAdded === "true" ||
+                message.querySelector(".message-actions")
+              ) {
+                return;
+              }
+
+              const text = cleanText(message);
+
+              if (!text || text.length < 5 || ERROR_PATTERN.test(text)) {
+                return;
+              }
+
+              message.dataset.actionsAdded = "true";
+
+              const actions = document.createElement("div");
+
+              actions.className = "message-actions";
+
+              actions.innerHTML = `
+                  <button
+                    class="message-action"
+                    type="button"
+                    data-message-action="copy"
+                    title="Copy"
+                  >📋 Copy</button>
+
+                  <button
+                    class="message-action"
+                    type="button"
+                    data-message-action="save"
+                    title="Save"
+                  >🔖</button>
+
+                  <button
+                    class="message-action"
+                    type="button"
+                    data-message-action="like"
+                    title="Like"
+                  >👍</button>
+
+                  <button
+                    class="message-action"
+                    type="button"
+                    data-message-action="dislike"
+                    title="Dislike"
+                  >👎</button>
+                `;
+
+              const copyButton = actions.querySelector(
+                '[data-message-action="copy"]',
+              );
+
+              const saveButton = actions.querySelector(
+                '[data-message-action="save"]',
+              );
+
+              const likeButton = actions.querySelector(
+                '[data-message-action="like"]',
+              );
+
+              const dislikeButton = actions.querySelector(
+                '[data-message-action="dislike"]',
+              );
+
+              copyButton?.addEventListener("click", async () => {
+                try {
+                  await navigator.clipboard.writeText(text);
+
+                  copyButton.textContent = "✓ Copied";
+
+                  window.setTimeout(() => {
+                    copyButton.textContent = "📋 Copy";
+                  }, 1200);
+                } catch (_) {
+                  /* Clipboard permission can be unavailable. */
+                }
+              });
+
+              saveButton?.addEventListener("click", () => {
+                saveButton.classList.toggle("active");
+              });
+
+              likeButton?.addEventListener("click", () => {
+                likeButton.classList.toggle("active");
+
+                dislikeButton?.classList.remove("active");
+              });
+
+              dislikeButton?.addEventListener("click", () => {
+                dislikeButton.classList.toggle("active");
+
+                likeButton?.classList.remove("active");
+              });
+
+              /*
+               * Code copy buttons are also initialized here.
+               */
+              actions.querySelectorAll(".code-copy").forEach(() => {});
+
+              message.appendChild(actions);
+            });
+        };
+
+        /* ------------------------------------------------------
+           Code-card copy handling
+           ------------------------------------------------------ */
+
+        chat.addEventListener("click", async (event) => {
+          const button = event.target.closest?.(".code-copy");
+
+          if (!button) return;
+
+          const code =
+            button.closest(".code-card")?.querySelector("code")?.textContent ||
+            "";
+
+          if (!code) return;
+
+          try {
+            await navigator.clipboard.writeText(code);
+
+            const original = button.textContent;
+
+            button.textContent = "Copied";
+
+            window.setTimeout(() => {
+              button.textContent = original;
+            }, 1200);
+          } catch (_) {
+            /* Clipboard permission can be unavailable. */
+          }
+        });
+
+        /* ------------------------------------------------------
+           Connection error normalization
+           ------------------------------------------------------ */
+
+        const bindRetry = (button, errorCard) => {
+          if (!button) return;
+
+          button.type = "button";
+
+          button.classList.add("retry-btn");
+
+          button.dataset.retryButton = "true";
+
+          button.style.appearance = "none";
+
+          button.style.webkitAppearance = "none";
+
+          if (button.dataset.retryBound === "true") {
+            return;
+          }
+
+          button.dataset.retryBound = "true";
+
+          button.addEventListener("click", () => {
+            const prompt = lastPrompt.trim();
+
+            /*
+             * Clear the failed response before retrying so the
+             * old error card cannot be re-detected during the
+             * same mutation cycle.
+             */
+            errorCard?.remove();
+
+            chat.classList.remove("has-connection-error");
+
+            removeTyping();
+
+            if (!prompt || !form || !input) {
+              input?.focus();
+              return;
+            }
+
+            input.value = prompt;
+
+            form.requestSubmit();
+          });
+        };
+
+        const normalizeErrorCard = (host) => {
+          if (!host) return;
+
+          /*
+           * If already normalized, only ensure the retry control
+           * remains bound and the thinking indicator is gone.
+           */
+          if (
+            host.dataset.finalErrorUi === "true" &&
+            host.querySelector(".connection-error-content")
+          ) {
+            host.classList.add("connection-error");
+
+            host.dataset.errorEnhanced = "true";
+
+            const retry = host.querySelector(RETRY_SELECTOR);
+
+            bindRetry(retry, host);
+
+            return;
+          }
+
+          /*
+           * Preserve the original Retry/Try Again label where possible.
+           */
+          const originalButton = host.querySelector(RETRY_SELECTOR);
+
+          const label = originalButton?.textContent?.trim() || "↻ Try Again";
+
+          host.classList.add("connection-error");
+
+          host.dataset.errorEnhanced = "true";
+
+          host.innerHTML = `
+            <div class="connection-error-content">
+              <div class="error-title">
+                ⚠️ Connection Error
+              </div>
+
+              <div class="error-message">
+                Unable to reach the AI server right now.
+                Please try again.
+              </div>
+
+              <button
+                class="retry-btn"
+                type="button"
+                data-retry-button="true"
+              >${label}</button>
+            </div>
+          `;
+
+          host.dataset.finalErrorUi = "true";
+
+          bindRetry(
+            host.querySelector('button[data-retry-button="true"]'),
+            host,
+          );
+        };
+
+        const findErrorHost = () => {
+          const existing = chat.querySelector(".connection-error");
+
+          if (existing) {
+            return existing;
+          }
+
+          const candidates = [
+            ...chat.querySelectorAll(
+              ".message, .chat-message, .bot-message, .assistant-message, .message-bubble, .chat-bubble",
+            ),
+            ...chat.querySelectorAll("div, p, span"),
+          ];
+
+          for (const element of candidates) {
+            if (
+              element.dataset.finalErrorUi === "true" ||
+              element.closest(".connection-error")
+            ) {
+              continue;
+            }
+
+            const text = cleanText(element);
+
+            if (text && ERROR_PATTERN.test(text)) {
+              /*
+               * Prefer the nearest recognizable message wrapper.
+               */
+              const message = element.closest(
+                ".message, .chat-message, .bot-message, .assistant-message, .message-bubble, .chat-bubble",
+              );
+
+              return message || element;
+            }
+          }
+
+          return null;
+        };
+
+        const removeNestedErrors = () => {
+          chat
+            .querySelectorAll(".connection-error .connection-error")
+            .forEach((nested) => nested.remove());
+        };
+
+        const repairErrors = () => {
+          const error = findErrorHost();
+
+          if (error) {
+            removeTyping();
+
+            normalizeErrorCard(error);
+
+            chat.classList.add("has-connection-error");
+          } else {
+            chat.classList.remove("has-connection-error");
+          }
+
+          removeNestedErrors();
+
+          chat.querySelectorAll(RETRY_SELECTOR).forEach((button) => {
+            bindRetry(button, button.closest(".connection-error"));
+          });
+        };
+
+        /* ------------------------------------------------------
+           Edit controls
+           ------------------------------------------------------ */
+
+        const setEditing = (button, text) => {
+          if (!input) return;
+
+          document
+            .querySelectorAll(".edit-user-message-btn.editing")
+            .forEach((other) => other.classList.remove("editing"));
+
+          button.classList.add("editing");
+
+          input.value = text;
+
+          input.dataset.editingMessage = "true";
+
+          input.focus();
+          input.select();
+
+          editActive = true;
+
+          let label = document.getElementById("composerEditingLabel");
+
+          if (!label) {
+            label = document.createElement("div");
+
+            label.id = "composerEditingLabel";
+
+            label.className = "composer-editing";
+
+            form?.parentElement?.insertBefore(label, form);
+          }
+
+          label.textContent =
+            "✎ Editing your question — change it, then press Send";
+        };
+
+        const clearEditing = () => {
+          editActive = false;
+
+          delete input?.dataset.editingMessage;
+
+          document
+            .querySelectorAll(".edit-user-message-btn.editing")
+            .forEach((button) => button.classList.remove("editing"));
+
+          document.getElementById("composerEditingLabel")?.remove();
+        };
+
+        const positionEditRow = (row) => {
+          if (!row || !row.parentElement) {
+            return;
+          }
+
+          const anchor = row.parentElement;
+
+          /*
+           * The Edit control remains in the existing DOM but is
+           * visually anchored directly beneath the user bubble.
+           */
+          anchor.style.position = "relative";
+
+          anchor.style.overflow = "visible";
+
+          row.style.position = "absolute";
+
+          row.style.top = "calc(100% + 6px)";
+
+          row.style.right = "0";
+
+          row.style.bottom = "auto";
+          row.style.left = "auto";
+
+          row.style.margin = "0";
+          row.style.width = "auto";
+
+          row.style.transform = "none";
+
+          row.style.opacity = "1";
+          row.style.visibility = "visible";
+
+          row.style.zIndex = "50";
+        };
+
+        const ensureEditButton = (message) => {
+          if (!message || !isUserElement(message)) {
+            return;
+          }
+
+          const text = cleanText(message);
+
+          if (!text) return;
+
+          /*
+           * If a nested row exists, move/position it instead
+           * of creating another one.
+           */
+          let row =
+            message.querySelector(":scope > .user-edit-row") ||
+            message.querySelector(".user-edit-row");
+
+          if (!row) {
+            row = document.createElement("div");
+
+            row.className = "user-edit-row";
+
+            row.dataset.editControl = "true";
+
+            const button = document.createElement("button");
+
+            button.type = "button";
+
+            button.className = "edit-user-message-btn";
+
+            button.title = "Edit this question";
+
+            button.setAttribute("aria-label", "Edit this question");
+
+            button.innerHTML =
+              '<span aria-hidden="true">✎</span><span>Edit</span>';
+
+            button.addEventListener("click", () =>
+              setEditing(button, cleanText(message)),
+            );
+
+            row.appendChild(button);
+
+            message.appendChild(row);
+          } else {
+            const button = row.querySelector(".edit-user-message-btn");
+
+            if (button && !button.dataset.editBound) {
+              button.dataset.editBound = "true";
+
+              button.addEventListener("click", () =>
+                setEditing(button, cleanText(message)),
+              );
+            }
+
+            /*
+             * If the original row lives inside a nested user bubble,
+             * keep it where it is but ensure its positioning is stable.
+             */
+          }
+
+          positionEditRow(row);
+
+          /*
+           * Keep the parent message from overlapping the next message
+           * because the Edit row sits just below it.
+           */
+          if (!message.style.getPropertyValue("margin-bottom")) {
+            message.style.marginBottom = "34px";
+          }
+        };
+
+        const repairEditControls = () => {
+          findUserElements().forEach(ensureEditButton);
+        };
+
+        /* ------------------------------------------------------
+           Global user-message submit handling
+           ------------------------------------------------------ */
+
+        form?.addEventListener(
+          "submit",
+          () => {
+            const value = input?.value.trim() || "";
+
+            if (value) {
+              lastPrompt = value;
+            }
+
+            /*
+             * A fresh request should not be treated as a failed state.
+             */
+            chat.classList.remove("has-connection-error");
+
+            chat
+              .querySelectorAll(".connection-error")
+              .forEach((card) => card.remove());
+
+            if (input?.dataset.editingMessage === "true") {
+              clearEditing();
+            }
+
+            removeTyping();
+
+          },
+          true,
+        );
+
+        input?.addEventListener("input", () => {
+          if (input.dataset.editingMessage === "true" && !input.value.trim()) {
+            clearEditing();
+          }
+        });
+
+        /* ------------------------------------------------------
+           Single delegated observer
+           ------------------------------------------------------ */
+
+        const observer = new MutationObserver(() => {
+          if (observerQueued) {
+            return;
+          }
+
+          observerQueued = true;
+
+          window.requestAnimationFrame(() => {
+            observerQueued = false;
+
+            if (!chat.isConnected) {
+              return;
+            }
+
+            /*
+             * If a real response exists after thinking,
+             * remove the temporary indicator.
+             */
+            if (chat.querySelector(".message, .chat-message")) {
+              const hasError = Boolean(chat.querySelector(".connection-error"));
+
+              if (hasError) {
+                removeTyping();
+              }
+            }
+
+            enhanceCodeBlocks();
+            addMessageActions();
+            repairErrors();
+            repairEditControls();
+            normalizeRetryButtons();
+          });
+        });
+
+        observer.observe(chat, {
+          childList: true,
+          subtree: true,
+        });
+
+        /* ------------------------------------------------------
+           Retry button normalization
+           ------------------------------------------------------ */
+
+        const normalizeRetryButtons = () => {
+          chat.querySelectorAll("button").forEach((button) => {
+            const label = (button.textContent || "")
+              .replace(/\s+/g, " ")
+              .trim();
+
+            if (!/^(?:↻\s*)?(?:retry|try again)$/i.test(label)) {
+              return;
+            }
+
+            button.type = "button";
+
+            button.classList.add("retry-btn");
+
+            button.dataset.retryButton = "true";
+
+            button.style.appearance = "none";
+
+            button.style.webkitAppearance = "none";
+
+            bindRetry(button, button.closest(".connection-error"));
+          });
+        };
+
+        /* ------------------------------------------------------
+           Initial pass
+           ------------------------------------------------------ */
+
+        enhanceCodeBlocks();
+        addMessageActions();
+        repairErrors();
+        repairEditControls();
+        normalizeRetryButtons();
+      })();
+    </script>
+  </body>
+</html>
