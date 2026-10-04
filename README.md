@@ -1,4 +1,4 @@
-# 🤖 AI Chatbot Assistant — Version 4.0.0
+# 🤖 AI Chatbot Assistant — Version 5.9.1
 
 A polished, lightweight AI Chatbot built with a **C++17 backend server** and a **Vanilla HTML/CSS/JavaScript frontend**.
 
