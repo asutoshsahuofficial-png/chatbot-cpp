@@ -1,5 +1,6 @@
 @echo off
 setlocal
+set PATH=C:\msys64\ucrt64\bin;%PATH%
 
 cd /d "%~dp0"
 
@@ -34,7 +35,7 @@ if not defined GROQ_API_KEY (
 )
 
 if not defined CHATBOT_ADMIN_PASSWORD (
-    echo INFO: No CHATBOT_ADMIN_PASSWORD found. Using default password: admin@2026
+    echo INFO: No CHATBOT_ADMIN_PASSWORD found. Using default password.
 ) else (
     echo INFO: FAQ admin password is loaded from CHATBOT_ADMIN_PASSWORD.
 )

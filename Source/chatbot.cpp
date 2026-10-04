@@ -133,17 +133,6 @@ struct KnowledgeItem
 
 std::string trim(const std::string &value);
 std::string toLower(std::string value);
-std::string sanitizeHistoryText(const std::string &value);
-
-std::string sanitizeKnowledgeText(const std::string &value)
-{
-    std::string cleaned = value;
-    std::replace(cleaned.begin(), cleaned.end(), '\r', ' ');
-    std::replace(cleaned.begin(), cleaned.end(), '\n', ' ');
-    // Strip pipe delimiter to prevent knowledge.txt data corruption
-    std::replace(cleaned.begin(), cleaned.end(), '|', '-');
-    return trim(cleaned);
-}
 
 std::string normalizeText(const std::string &value)
 {
@@ -227,11 +216,7 @@ bool containsKeyword(const std::string &message, const std::vector<std::string> 
             continue;
         }
 
-        const std::string paddedMessage = " " + normalizedMessage + " ";
-        const std::string paddedKeyword = " " + normalizedKeyword + " ";
-
-        if (normalizedMessage == normalizedKeyword ||
-            paddedMessage.find(paddedKeyword) != std::string::npos)
+        if (normalizedMessage == normalizedKeyword)
         {
             return true;
         }
@@ -1165,47 +1150,6 @@ static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *use
     return size * nmemb;
 }
 
-bool testGroqApiKey(const std::string &apiKey)
-{
-    CURL *curl;
-    CURLcode res;
-    std::string response;
-    bool isValid = false;
-
-    curl = curl_easy_init();
-    if (curl)
-    {
-        struct curl_slist *headers = NULL;
-        headers = curl_slist_append(headers, ("Authorization: Bearer " + apiKey).c_str());
-
-        curl_easy_setopt(curl, CURLOPT_URL, "https://api.groq.com/openai/v1/models");
-        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
-        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1L);
-#ifdef CURLSSLOPT_NATIVE_CA
-        curl_easy_setopt(curl, CURLOPT_SSL_OPTIONS, CURLSSLOPT_NATIVE_CA);
-#endif
-        // Timeout so it doesn't hang forever if network is bad
-        curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10L);
-
-        res = curl_easy_perform(curl);
-        if (res == CURLE_OK)
-        {
-            long http_code = 0;
-            curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
-            if (http_code == 200)
-            {
-                isValid = true;
-            }
-        }
-
-        curl_slist_free_all(headers);
-        curl_easy_cleanup(curl);
-    }
-    return isValid;
-}
-
 json callGroq(const json &requestBody)
 {
     std::string apiKey = getGroqApiKey();
@@ -1339,9 +1283,11 @@ json askGroq(const std::string &userMessage)
         {"model", GROQ_MODEL},
         {"messages", json::array({{{"role", "system"},
                                    {"content",
-                                    "You are a helpful and friendly chatbot assistant. "
+                                    "You are a helpful and friendly chatbot assistant for this specific web application. "
                                     "Answer questions clearly and naturally. "
-                                    "Use simple language and provide useful answers."}},
+                                    "Use simple language and provide useful answers. "
+                                    "If the user asks how to see or show their history, tell them to click on 'Conversation History' in the left sidebar. "
+                                    "If the user asks how to add new Q&A, knowledge, or FAQs, tell them to click on 'Knowledge Base' in the left sidebar."}},
                                   {{"role", "user"},
                                    {"content", userMessage}}})},
         {"temperature", 0.7},
@@ -1591,48 +1537,8 @@ bool isAdminAuthorized(const httplib::Request &req)
 }
 
 // ============================================================
-// CHAT HISTORY TXT FILE
+// CHAT HISTORY FILE
 // ============================================================
-
-std::string sanitizeHistoryText(const std::string &value)
-{
-    std::string cleaned = value;
-    std::replace(cleaned.begin(), cleaned.end(), '\r', ' ');
-
-    auto replaceAll = [](std::string &str, const std::string &from, const std::string &to)
-    {
-        if (from.empty())
-            return;
-        size_t start_pos = 0;
-        while ((start_pos = str.find(from, start_pos)) != std::string::npos)
-        {
-            str.replace(start_pos, from.length(), to);
-            start_pos += to.length();
-        }
-    };
-
-    replaceAll(cleaned, "\nEND CHAT", "\nEND_CHAT");
-    replaceAll(cleaned, "\nQUESTION:", "\nQUESTION_");
-    replaceAll(cleaned, "\nANSWER:", "\nANSWER_");
-    replaceAll(cleaned, "\nCHAT ID:", "\nCHAT_ID:");
-    replaceAll(cleaned, "\nCONVERSATION ID:", "\nCONVERSATION_ID:");
-    replaceAll(cleaned, "\nDATE:", "\nDATE_");
-
-    if (cleaned.find("END CHAT") == 0)
-        cleaned.replace(0, 8, "END_CHAT");
-    if (cleaned.find("QUESTION:") == 0)
-        cleaned.replace(0, 9, "QUESTION_");
-    if (cleaned.find("ANSWER:") == 0)
-        cleaned.replace(0, 7, "ANSWER_");
-    if (cleaned.find("CHAT ID:") == 0)
-        cleaned.replace(0, 8, "CHAT_ID:");
-    if (cleaned.find("CONVERSATION ID:") == 0)
-        cleaned.replace(0, 16, "CONVERSATION_ID:");
-    if (cleaned.find("DATE:") == 0)
-        cleaned.replace(0, 5, "DATE_");
-
-    return cleaned;
-}
 
 struct HistoryMessage
 {
@@ -1641,6 +1547,7 @@ struct HistoryMessage
     std::string date;
     std::string question;
     std::string answer;
+    std::string source;
 };
 
 std::vector<HistoryMessage> readHistoryMessages()
@@ -1664,6 +1571,7 @@ std::vector<HistoryMessage> readHistoryMessages()
                 msg.date = el.value("date", "");
                 msg.question = el.value("question", "");
                 msg.answer = el.value("answer", "");
+                msg.source = el.value("source", "");
                 messages.push_back(msg);
             }
         }
@@ -1677,6 +1585,7 @@ bool appendHistoryRecord(
     const std::string &conversationId,
     const std::string &question,
     const std::string &answer,
+    const std::string &source,
     std::string &error)
 {
     std::vector<HistoryMessage> messages;
@@ -1694,6 +1603,7 @@ bool appendHistoryRecord(
                         msg.date = el.value("date", "");
                         msg.question = el.value("question", "");
                         msg.answer = el.value("answer", "");
+                        msg.source = el.value("source", "");
                         messages.push_back(msg);
                     }
                 }
@@ -1707,11 +1617,12 @@ bool appendHistoryRecord(
     newMsg.date = currentDateTime();
     newMsg.question = question;
     newMsg.answer = answer;
+    newMsg.source = source;
     messages.push_back(newMsg);
 
     json outArr = json::array();
     for (const auto& m : messages) {
-        outArr.push_back({{"id", m.id}, {"conversationId", m.conversationId}, {"date", m.date}, {"question", m.question}, {"answer", m.answer}});
+        outArr.push_back({{"id", m.id}, {"conversationId", m.conversationId}, {"date", m.date}, {"question", m.question}, {"answer", m.answer}, {"source", m.source}});
     }
 
     std::lock_guard<std::mutex> lock(historyMutex);
@@ -1735,9 +1646,11 @@ json askGroqWithConversation(
     const json systemMessage = {
         {"role", "system"},
         {"content",
-         "You are a helpful and friendly chatbot assistant. "
+         "You are a helpful and friendly chatbot assistant for this specific web application. "
          "Answer questions clearly and naturally. "
          "Use simple language and provide useful answers. "
+         "If the user asks how to see or show their history, tell them to click on 'Conversation History' in the left sidebar. "
+         "If the user asks how to add new Q&A, knowledge, or FAQs, tell them to click on 'Knowledge Base' in the left sidebar. "
          "Use the previous conversation context to understand follow-up "
          "questions, short replies, pronouns, and references to earlier messages."}};
 
@@ -1824,7 +1737,8 @@ json listConversationSessions()
         sessions[found->second]["messages"].push_back({{"id", message.id},
                                                        {"date", message.date},
                                                        {"question", message.question},
-                                                       {"answer", message.answer}});
+                                                       {"answer", message.answer},
+                                                       {"source", message.source}});
         sessions[found->second]["date"] = message.date;
     }
 
@@ -1846,6 +1760,7 @@ bool clearHistoryFile(std::string &error)
 bool replaceHistoryRecord(
     const std::string &entryId,
     const std::string &newAnswer,
+    const std::string &source,
     std::string &error)
 {
     std::vector<HistoryMessage> messages;
@@ -1863,6 +1778,7 @@ bool replaceHistoryRecord(
                         msg.date = el.value("date", "");
                         msg.question = el.value("question", "");
                         msg.answer = el.value("answer", "");
+                        msg.source = el.value("source", "");
                         messages.push_back(msg);
                     }
                 }
@@ -1874,6 +1790,7 @@ bool replaceHistoryRecord(
     for (auto& m : messages) {
         if (m.id == entryId) {
             m.answer = newAnswer;
+            m.source = source;
             found = true;
             break;
         }
@@ -1886,7 +1803,7 @@ bool replaceHistoryRecord(
 
     json outArr = json::array();
     for (const auto& m : messages) {
-        outArr.push_back({{"id", m.id}, {"conversationId", m.conversationId}, {"date", m.date}, {"question", m.question}, {"answer", m.answer}});
+        outArr.push_back({{"id", m.id}, {"conversationId", m.conversationId}, {"date", m.date}, {"question", m.question}, {"answer", m.answer}, {"source", m.source}});
     }
 
     std::lock_guard<std::mutex> lock(historyMutex);
@@ -2303,6 +2220,7 @@ int main()
                     conversationId,
                     message,
                     answer.value("answer", ""),
+                    answer.value("source", ""),
                     historyError);
 
                 RefreshContext context;
@@ -2440,10 +2358,12 @@ int main()
                 const bool historyUpdated = replaceHistoryRecord(
                     entryId,
                     answer.value("answer", ""),
+                    answer.value("source", "groq_ai"),
                     historyError);
 
                 answer["entry_id"] = entryId;
                 answer["history_saved"] = historyUpdated;
+                if (!answer.contains("source")) { answer["source"] = "groq_ai"; }
 
                 if (!historyUpdated)
                 {
@@ -2547,6 +2467,7 @@ int main()
                     conversationId,
                     storedQuestion,
                     answer.value("answer", ""),
+                    answer.value("source", "groq_ai"),
                     historyError);
 
                 RefreshContext context;
@@ -2652,3 +2573,7 @@ int main()
     curl_global_cleanup();
     return 0;
 }
+
+
+
+

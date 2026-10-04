@@ -12,9 +12,7 @@ const sections = document.querySelectorAll(".content-section");
 const exitBtn = document.getElementById("exitBtn");
 const historyList = document.getElementById("historyList");
 
-const darkModeToggle = document.getElementById("darkModeToggle");
-const timestampToggle = document.getElementById("timestampToggle");
-const soundToggle = document.getElementById("soundToggle");
+
 
 const clearHistoryButton = document.getElementById("clearHistoryButton");
 const clearSavedAnswersBtn = document.getElementById("clearSavedAnswersBtn");
@@ -33,15 +31,7 @@ let activeConversationId = null;
 let backendHistorySessions = [];
 let adminUnlocked = false;
 
-/* ============================================================
-   DEFAULT SETTINGS
-============================================================ */
 
-const DEFAULT_SETTINGS = {
-  darkMode: false,
-  showTimestamps: true,
-  soundNotifications: false,
-};
 
 /* ============================================================
    STORAGE
@@ -88,7 +78,7 @@ function sanitizeStoredHtml(html) {
     const doc = parser.parseFromString(html, "text/html");
 
     const dangerous = doc.querySelectorAll(
-      "script, iframe, object, embed, form, style, link, meta, base",
+      "script, iframe, object, embed, form, style, link, meta, base, img.user-image-preview",
     );
     dangerous.forEach(function (el) {
       el.remove();
@@ -119,53 +109,7 @@ function sanitizeStoredHtml(html) {
    SETTINGS
 ============================================================ */
 
-function getSettings() {
-  try {
-    const raw = getStorageItem("chatbotSettings");
-
-    if (!raw) {
-      return {
-        ...DEFAULT_SETTINGS,
-      };
-    }
-
-    const saved = JSON.parse(raw);
-
-    if (!saved || typeof saved !== "object" || Array.isArray(saved)) {
-      return {
-        ...DEFAULT_SETTINGS,
-      };
-    }
-
-    return {
-      darkMode: saved.darkMode === true,
-
-      showTimestamps: saved.showTimestamps !== false,
-
-      soundNotifications: saved.soundNotifications === true,
-    };
-  } catch (error) {
-    return {
-      ...DEFAULT_SETTINGS,
-    };
-  }
-}
-
-function saveSettings() {
-  if (!darkModeToggle || !timestampToggle || !soundToggle) {
-    return;
-  }
-
-  const settings = {
-    darkMode: darkModeToggle.checked,
-
-    showTimestamps: timestampToggle.checked,
-
-    soundNotifications: soundToggle.checked,
-  };
-
-  setStorageItem("chatbotSettings", JSON.stringify(settings));
-}
+function saveSettings() { setStorageItem("chatbotSettings", JSON.stringify({ darkMode: document.body.classList.contains("dark-mode") })); }
 
 /* ============================================================
    HTML ESCAPING
@@ -259,63 +203,13 @@ setInterval(updateHeaderTime, 30000);
    TIMESTAMP DISPLAY
 ============================================================ */
 
-function updateTimestampVisibility() {
-  const settings = getSettings();
-
-  document.querySelectorAll(".message-meta").forEach(function (element) {
-    element.style.display = settings.showTimestamps ? "flex" : "none";
-  });
-}
-
-/* ============================================================
+function updateTimestampVisibility() {}/* ============================================================
    SOUND
 ============================================================ */
 
 let audioContext = null;
 
-function playNotificationSound() {
-  const settings = getSettings();
-
-  if (!settings.soundNotifications) {
-    return;
-  }
-
-  try {
-    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-
-    if (!AudioContextClass) {
-      return;
-    }
-
-    if (!audioContext || audioContext.state === "closed") {
-      audioContext = new AudioContextClass();
-    }
-
-    if (audioContext.state === "suspended") {
-      audioContext.resume().catch(() => {});
-    }
-
-    const oscillator = audioContext.createOscillator();
-
-    const gain = audioContext.createGain();
-
-    oscillator.connect(gain);
-
-    gain.connect(audioContext.destination);
-
-    oscillator.frequency.value = 700;
-
-    oscillator.type = "sine";
-
-    gain.gain.setValueAtTime(0.08, audioContext.currentTime);
-
-    oscillator.start();
-
-    oscillator.stop(audioContext.currentTime + 0.12);
-  } catch (error) {
-    console.warn("Notification sound unavailable.");
-  }
-}
+function playNotificationSound() {}
 
 /* ============================================================
    API CONNECTION STATUS
@@ -395,100 +289,19 @@ function removeLoadingMessages() {
   });
 }
 
-function removeChatWelcomeState() {
-  if (!chat) {
-    return;
-  }
-
-  chat.querySelectorAll(".welcome-state").forEach(function (element) {
-    element.remove();
-  });
-}
 
 function restoreChatWelcomeState() {
-  if (!chat) {
-    return;
-  }
-
-  if (chat.querySelector(".message-row")) {
-    return;
-  }
-
-  if (chat.querySelector(".welcome-state")) {
-    return;
-  }
-
+  if (!chat) return;
+  if (chat.querySelector(".message-row")) return;
   chat.innerHTML = `
-    <div class="welcome-state">
-
-      <div class="welcome-icon">
-        👋
+    <div class="message-row assistant-row">
+      <div class="assistant-avatar"><i data-lucide="bot"></i></div>
+      <div class="bubble assistant-bubble">
+        <div class="assistant-content">Hello! 👋<br><br>I'm your chatbot assistant. How can I help you today?</div>
+        <div class="message-meta timestamp"><span>${escapeHtml(getCurrentTime())}</span></div>
       </div>
-
-      <h2>
-        Welcome to Chatbot AI
-      </h2>
-
-      <p>
-        Ask me anything and I’ll do my best to help.
-      </p>
-
     </div>
   `;
-}
-
-/* ============================================================
-   USER MESSAGE
-============================================================ */
-
-function addUserMessage(text) {
-  if (!chat) {
-    return null;
-  }
-
-  const cleanText = String(text).trim();
-
-  if (!cleanText) {
-    return null;
-  }
-
-  removeChatWelcomeState();
-
-  const row = document.createElement("div");
-
-  row.className = "message-row user-row";
-
-  const bubble = document.createElement("div");
-
-  bubble.className = "bubble user-bubble";
-
-  bubble.innerHTML = `
-    ${escapeHtml(cleanText)}
-
-    <div class="message-meta timestamp">
-
-      <span>
-        ${escapeHtml(getCurrentTime())}
-      </span>
-
-      <span class="checks">
-        ✓✓
-      </span>
-
-    </div>
-  `;
-
-  row.appendChild(bubble);
-
-  chat.appendChild(row);
-
-  updateTimestampVisibility();
-
-  chat.scrollTop = chat.scrollHeight;
-
-  saveChatData();
-
-  return row;
 }
 
 /* ============================================================
@@ -535,11 +348,48 @@ function refreshAssistantFormatting(root = document) {
     });
 }
 
+
+/* ============================================================
+   USER MESSAGE
+============================================================ */
+
+function addUserMessage(text) {
+  if (!chat) {
+    return null;
+  }
+
+  const cleanText = String(text).trim();
+
+  if (!cleanText) {
+    return null;
+  }
+
+  chat.querySelectorAll(".welcome-state").forEach(function (element) {
+    element.remove();
+  });
+
+  const row = document.createElement("div");
+  row.className = "message-row user-row";
+
+  row.innerHTML = `
+    <div class="bubble user-bubble">
+      ${escapeHtml(cleanText).replace(/\n/g, "<br>")}
+      <div class="message-meta timestamp"><span>${escapeHtml(getCurrentTime())}</span></div>
+    </div>
+    <div class="user-avatar"><i data-lucide="user"></i></div>`;
+
+  chat.appendChild(row);
+  updateTimestampVisibility();
+  chat.scrollTop = chat.scrollHeight;
+  if (typeof saveChatData === "function") saveChatData();
+  return row;
+}
+
 /* ============================================================
    ASSISTANT MESSAGE
 ============================================================ */
 
-function addAssistantMessage(text, source = "") {
+function addAssistantMessage(text, question = "", entryId = "", source = "") {
   if (!chat) {
     return null;
   }
@@ -553,6 +403,8 @@ function addAssistantMessage(text, source = "") {
   const row = document.createElement("div");
 
   row.className = "message-row assistant-row";
+  if (entryId) row.dataset.entryId = entryId;
+  if (question) row.dataset.question = question;
 
   let sourceBadge = "";
   if (source === "knowledge_file") {
@@ -564,39 +416,17 @@ function addAssistantMessage(text, source = "") {
   }
 
   row.innerHTML = `
-    <div class="assistant-avatar">
-      ✦
-    </div>
-
+    <div class="assistant-avatar"><i data-lucide="bot"></i></div>
     <div class="bubble assistant-bubble">
-
-      <div class="assistant-content">
-        ${formatAssistantText(cleanText)}
+      <div class="assistant-content">${formatAssistantText(cleanText)}</div>
+      <div class="message-meta timestamp">${sourceBadge}<span>${escapeHtml(getCurrentTime())}</span></div>
+      <div class="reaction-actions">
+        <button class="copy-btn" title="Copy"><i data-lucide="copy" style="width: 16px; height: 16px;"></i></button>
+        
       </div>
+    </div>`;
 
-      <div class="message-meta timestamp">
-
-        ${sourceBadge}
-        <span>
-          ${escapeHtml(getCurrentTime())}
-        </span>
-
-        <div class="reaction-actions">
-
-          <button
-            class="like-btn"
-            aria-label="Save Answer"
-            type="button"
-          >
-            ♡
-          </button>
-
-        </div>
-
-      </div>
-
-    </div>
-  `;
+  const wasNearBottom = chat.scrollHeight - chat.scrollTop - chat.clientHeight < 150;
 
   chat.appendChild(row);
 
@@ -608,7 +438,11 @@ function addAssistantMessage(text, source = "") {
 
   updateTimestampVisibility();
 
-  chat.scrollTop = chat.scrollHeight;
+  if (wasNearBottom) {
+    // Position the chat at the start/top of the new response
+    // If the message is short, the browser caps the scroll naturally.
+    chat.scrollTop = row.offsetTop - 24;
+  }
 
   playNotificationSound();
 
@@ -621,11 +455,12 @@ function addAssistantMessage(text, source = "") {
    FRIENDLY CONNECTION ERROR
 ============================================================ */
 
-function addErrorMessage(prompt) {
+function addErrorMessage(prompt, errorMsg) {
   if (!chat) {
     return null;
   }
 
+  const msg = errorMsg || "Sorry, I couldn't connect to the AI server. Please try again.";
   lastFailedPrompt = String(prompt || "").trim();
 
   chat
@@ -641,43 +476,26 @@ function addErrorMessage(prompt) {
   row.className = "message-row assistant-row connection-error-message";
 
   row.innerHTML = `
-    <div class="assistant-avatar">
-      ✦
-    </div>
-
-    <div class="bubble assistant-bubble error-bubble">
-      <p>
-        Oops! 😅 I couldn't connect right now.
-        Please try again in a moment.
-      </p>
-
-      <button
-        type="button"
-        class="retry-chat-btn"
-        aria-label="Try sending the message again"
-      >
-        ↻ Try Again
-      </button>
-
-      <div class="message-meta timestamp">
-        <span>
-          ${escapeHtml(getCurrentTime())}
-        </span>
+    <div class="assistant-avatar"><i data-lucide="bot"></i></div>
+    <div class="bubble assistant-bubble">
+      <div class="assistant-content">
+        <strong>Error</strong><br>
+        ${escapeHtml(msg)}
       </div>
-    </div>
-  `;
+      <div class="message-meta timestamp"><span>${escapeHtml(getCurrentTime())}</span></div>
+    </div>`;
+
+  const wasNearBottom = chat.scrollHeight - chat.scrollTop - chat.clientHeight < 150;
 
   chat.appendChild(row);
-
   updateTimestampVisibility();
-
-  chat.scrollTop = chat.scrollHeight;
-
-  saveChatData();
-
+  
+  if (wasNearBottom) {
+    chat.scrollTop = row.offsetTop - 24;
+  }
+  if (typeof saveChatData === "function") saveChatData();
   return row;
 }
-
 /* ============================================================
    CHAT STORAGE
 ============================================================ */
@@ -912,59 +730,107 @@ function deleteHistoryConversation(id) {
   }
 
   const history = readHistory().filter(function (item) {
-    return item && item.id !== id;
+    return item && String(item.id) !== String(id);
   });
-
   setStorageItem("chatHistory", JSON.stringify(history));
 
-  if (activeConversationId === id) {
-    activeConversationId = null;
+  backendHistorySessions = backendHistorySessions.filter(function (session) {
+    return session && String(session.id) !== String(id);
+  });
 
+  if (String(activeConversationId) === String(id)) {
+    activeConversationId = null;
     removeStorageItem("activeConversationId");
+  }
+
+  const loadBtn = document.getElementById("historyPreviewLoadBtn");
+  if (loadBtn && String(loadBtn.dataset.historyId) === String(id)) {
+    clearPreviewPane();
   }
 
   renderHistory();
 }
 
-function clearRecentConversations() {
+function confirmClearHistoryUI() {
   const history = mergedHistoryItems();
 
   if (!history.length) {
-    renderHistory();
-
+    alert("No conversation history is currently present.");
     return;
   }
 
-  const confirmed = window.confirm(
-    "Clear all Recent Conversations? This cannot be undone.",
-  );
+  const overlay = document.createElement("div");
+  overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:100000;backdrop-filter:blur(2px);";
+  
+  const box = document.createElement("div");
+  box.style.cssText = "background:var(--surface,#fff);padding:24px;border-radius:12px;box-shadow:0 10px 25px rgba(0,0,0,0.2);text-align:center;width:90%;max-width:320px;border:1px solid var(--border,#e2e8f0);animation:fadeIn 0.2s ease-out;";
+  
+  const title = document.createElement("h3");
+  title.innerText = "Are you sure you want to clear all conversation history?";
+  title.style.cssText = "margin:0 0 16px 0;font-size:16px;color:var(--text,#172033);font-weight:700;line-height:1.4;";
+  
+  const btnRow = document.createElement("div");
+  btnRow.style.cssText = "display:flex;gap:12px;justify-content:center;";
+  
+  const cancelBtn = document.createElement("button");
+  cancelBtn.innerText = "Cancel";
+  cancelBtn.style.cssText = "padding:10px 16px;border-radius:8px;border:none;background:var(--bg,#f1f5f9);color:var(--text,#172033);font-weight:600;cursor:pointer;flex:1;transition:background 0.2s;";
+  cancelBtn.onmouseover = () => cancelBtn.style.background = "var(--border-hover,#e2e8f0)";
+  cancelBtn.onmouseout = () => cancelBtn.style.background = "var(--bg,#f1f5f9)";
+  
+  const confirmBtn = document.createElement("button");
+  confirmBtn.innerText = "Clear All";
+  confirmBtn.style.cssText = "padding:10px 16px;border-radius:8px;border:none;background:#EF4444;color:#fff;font-weight:600;cursor:pointer;flex:1;transition:background 0.2s;";
+  confirmBtn.onmouseover = () => confirmBtn.style.background = "#DC2626";
+  confirmBtn.onmouseout = () => confirmBtn.style.background = "#EF4444";
+  
+  cancelBtn.onclick = () => document.body.removeChild(overlay);
+  confirmBtn.onclick = () => {
+    document.body.removeChild(overlay);
+    executeClearAllHistory();
+  };
+  
+  btnRow.appendChild(cancelBtn);
+  btnRow.appendChild(confirmBtn);
+  
+  box.appendChild(title);
+  box.appendChild(btnRow);
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+}
 
-  if (!confirmed) {
-    return;
-  }
-
+function executeClearAllHistory() {
   removeStorageItem("chatHistory");
-
+  backendHistorySessions = [];
   activeConversationId = null;
-
   removeStorageItem("activeConversationId");
+  removeStorageItem("chatData");
+  
+  clearPreviewPane();
 
   if (chat) {
     chat.innerHTML = `
       <div class="message-row assistant-row">
-        <div class="assistant-avatar">✦</div>
+        <div class="assistant-avatar"><i data-lucide="bot"></i></div>
         <div class="bubble assistant-bubble">
-          <p>Hello! 👋 I'm your Chatbot Assistant. Ask me anything.</p>
+          <p>Hello! 👋 I'm your Chatbot Assistant.<br>Ask me anything.</p>
           <div class="message-meta timestamp">
             <span>${escapeHtml(getCurrentTime())}</span>
           </div>
         </div>
       </div>
     `;
+    setStorageItem("chatData", chat.innerHTML);
+    if (typeof lucide !== "undefined") lucide.createIcons();
   }
 
   renderHistory();
+  
+  const chatNavBtn = document.querySelector('[data-section="chat-section"]');
+  if (chatNavBtn) navigateToSection(chatNavBtn);
 }
+
+
 
 function openConversationFromHistory(id) {
   if (!chat || !id) {
@@ -1005,7 +871,7 @@ function openConversationFromHistory(id) {
       : [];
     messages.forEach((message) => {
       addUserMessage(message.question || "");
-      addAssistantMessage(message.answer || "");
+      addAssistantMessage(message.answer || "", message.question || "", message.id || "", message.source || "");
     });
     setStorageItem("chatData", chat.innerHTML);
     updateTimestampVisibility();
@@ -1036,23 +902,13 @@ function openConversationFromHistory(id) {
 
     bubble.className = "bubble user-bubble";
 
-    bubble.innerHTML = `
-      ${escapeHtml(record.message || "")}
-
-      <div class="message-meta timestamp">
-
-        <span>
-          ${escapeHtml(getCurrentTime())}
-        </span>
-
-        <span class="checks">
-          ✓✓
-        </span>
-
-      </div>
-    `;
-
-    row.appendChild(bubble);
+    row.innerHTML = `
+    <div class="bubble user-bubble">
+      ${escapeHtml(record.question || "")}
+      <div class="message-meta timestamp"><span>${escapeHtml(getCurrentTime())}</span></div>
+    </div>
+    <div class="user-avatar"><i data-lucide="user"></i></div>
+  `;
 
     chat.appendChild(row);
 
@@ -1169,31 +1025,40 @@ function renderHistory() {
     historyList.innerHTML = `
       <div class="empty-state">
 
-        <div class="empty-icon">
-          💬
-        </div>
+        <div class="empty-icon"><i data-lucide="message-square" style="width: 48px; height: 48px;"></i></div>
 
         <h3>
           No Conversations
         </h3>
 
         <p>
-          Your recent conversations
-          will appear here.
+          No conversation history yet.
         </p>
 
       </div>
     `;
 
+    const exportBtn = document.getElementById("exportHistoryButtonUI");
     if (clearHistoryButton) {
       clearHistoryButton.disabled = true;
+    }
+    if (exportBtn) {
+      exportBtn.disabled = true;
+      exportBtn.style.opacity = "0.5";
+      exportBtn.style.cursor = "not-allowed";
     }
 
     return;
   }
 
+  const exportBtn = document.getElementById("exportHistoryButtonUI");
   if (clearHistoryButton) {
     clearHistoryButton.disabled = false;
+  }
+  if (exportBtn) {
+    exportBtn.disabled = false;
+    exportBtn.style.opacity = "1";
+    exportBtn.style.cursor = "pointer";
   }
 
   let lastGroup = "";
@@ -1224,28 +1089,18 @@ function renderHistory() {
           tabindex="0"
           aria-label="Open ${escapeHtml(title)}"
         >
-          <span>
-            💬
-          </span>
-
+          <span><i data-lucide="message-square" style="width: 1em; height: 1em; vertical-align: middle;"></i></span>
           <div style="flex: 1;">
-
-            <strong>
-              ${escapeHtml(title)}
-            </strong>
-
-            <p>
-              ${escapeHtml(preview)}
-            </p>
-
+            <strong>${escapeHtml(title)}</strong>
+            <p>${escapeHtml(preview)}</p>
+            <span class="history-item-date">${escapeHtml(item.date)}</span>
           </div>
-
-          <button class="delete-history-btn" data-history-id="${escapeHtml(id)}" title="Clear Conversation" style="background:none; border:none; cursor:pointer; font-size:1.1rem; color: var(--danger, #e74c3c); padding:5px; margin-left: auto;">🗑️</button>
-
+          <button class="delete-history-btn history-item-delete" data-history-id="${escapeHtml(id)}" title="Clear Conversation"><i data-lucide="trash-2"></i></button>
         </div>
       `;
     })
     .join("");
+  if (window.lucide) { window.lucide.createIcons(); }
 }
 /* ============================================================
    SAVED ANSWERS
@@ -1367,7 +1222,7 @@ function renderSavedAnswers() {
                   ${escapeHtml(item.date)}
                 </small>
               </div>
-              <button class="delete-saved-btn" data-index="${index}" title="Clear Saved Answer" style="background:none; border:none; cursor:pointer; font-size:1.1rem; color: var(--danger, #e74c3c); padding:5px;">🗑️</button>
+              <button class="delete-saved-btn" data-index="${index}" title="Clear Saved Answer" style="background:none; border:none; cursor:pointer; font-size:1.1rem; color: var(--danger, #e74c3c); padding:5px;"><i data-lucide="trash-2" style="width: 1em; height: 1em; vertical-align: middle;"></i></button>
             </div>
           `;
         })
@@ -1393,26 +1248,10 @@ function addLoadingMessage() {
   row.className = "message-row assistant-row loading-message";
 
   row.innerHTML = `
-    <div class="assistant-avatar">
-      ✦
-    </div>
-
-    <div class="bubble assistant-bubble">
-
-      <p>
-        Thinking...
-      </p>
-
-      <div class="message-meta timestamp">
-
-        <span>
-          ${escapeHtml(getCurrentTime())}
-        </span>
-
-      </div>
-
-    </div>
-  `;
+    <div class="assistant-avatar"><i data-lucide="bot"></i></div>
+    <div class="bubble assistant-bubble" style="color: var(--text-light); font-style: italic;">
+      Generating...
+    </div>`;
 
   chat.appendChild(row);
 
@@ -1428,6 +1267,7 @@ function addLoadingMessage() {
 ============================================================ */
 
 async function generateResponse(message) {
+  if (typeof window.__hideUserTyping === 'function') window.__hideUserTyping();
   const cleanMessage = String(message || "").trim();
 
   if (!cleanMessage || !chat) {
@@ -1566,7 +1406,7 @@ async function generateResponse(message) {
 
     lastFailedPrompt = cleanMessage;
 
-    addErrorMessage(cleanMessage);
+    addErrorMessage(cleanMessage, error?.message);
 
     return false;
   } finally {
@@ -1634,7 +1474,7 @@ if (form && input) {
 
       markApiOffline();
 
-      addErrorMessage(value);
+      addErrorMessage(value, error?.message);
     } finally {
       requestInProgress = false;
 
@@ -1675,46 +1515,111 @@ document.querySelectorAll(".quick-action").forEach(function (button) {
    NAVIGATION
 ============================================================ */
 
+function confirmNewChatUI() {
+  const overlay = document.createElement("div");
+  overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:100000;backdrop-filter:blur(2px);";
+  
+  const box = document.createElement("div");
+  box.style.cssText = "background:var(--surface,#fff);padding:24px;border-radius:12px;box-shadow:0 10px 25px rgba(0,0,0,0.2);text-align:center;width:90%;max-width:320px;border:1px solid var(--border,#e2e8f0);animation:fadeIn 0.2s ease-out;";
+  
+  const title = document.createElement("h3");
+  title.innerText = "Start a new chat?";
+  title.style.cssText = "margin:0 0 8px 0;font-size:18px;color:var(--text,#172033);font-weight:700;";
+  
+  const desc = document.createElement("p");
+  desc.innerText = "This will clear your current conversation.";
+  desc.style.cssText = "margin:0 0 24px 0;font-size:14px;color:var(--text-light,#64748b);";
+  
+  const btnRow = document.createElement("div");
+  btnRow.style.cssText = "display:flex;gap:12px;justify-content:center;";
+  
+  const cancelBtn = document.createElement("button");
+  cancelBtn.innerText = "Cancel";
+  cancelBtn.style.cssText = "padding:10px 16px;border-radius:8px;border:none;background:var(--bg,#f1f5f9);color:var(--text,#172033);font-weight:600;cursor:pointer;flex:1;transition:background 0.2s;";
+  cancelBtn.onmouseover = () => cancelBtn.style.background = "#e2e8f0";
+  cancelBtn.onmouseout = () => cancelBtn.style.background = "var(--bg,#f1f5f9)";
+  
+  const confirmBtn = document.createElement("button");
+  confirmBtn.innerText = "New Chat";
+  confirmBtn.style.cssText = "padding:10px 16px;border-radius:8px;border:none;background:var(--primary,#2563eb);color:#fff;font-weight:600;cursor:pointer;flex:1;transition:background 0.2s;";
+  confirmBtn.onmouseover = () => confirmBtn.style.background = "#1d4ed8";
+  confirmBtn.onmouseout = () => confirmBtn.style.background = "var(--primary,#2563eb)";
+  
+  btnRow.appendChild(cancelBtn);
+  btnRow.appendChild(confirmBtn);
+  box.appendChild(title);
+  box.appendChild(desc);
+  box.appendChild(btnRow);
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+  
+  cancelBtn.addEventListener("click", () => {
+    document.body.removeChild(overlay);
+  });
+  
+  confirmBtn.addEventListener("click", () => {
+    document.body.removeChild(overlay);
+    startNewChat();
+    // Also navigate to chat section just in case
+    const chatBtn = document.querySelector('[data-section="chat-section"]');
+    if (chatBtn) navigateToSection(chatBtn);
+  });
+}
+
+function navigateToSection(item) {
+  const target = item.dataset.section;
+  if (!target) return;
+  const section = document.getElementById(target);
+  if (!section) return;
+
+  navItems.forEach(function (nav) {
+    nav.classList.remove("active");
+  });
+  item.classList.add("active");
+
+  sections.forEach(function (sec) {
+    sec.classList.remove("active-section");
+  });
+  section.classList.add("active-section");
+
+  if (target !== "chat-section") {
+    showSectionSkeleton(section);
+  }
+
+  if (target === "history-section") {
+    renderHistory();
+  }
+
+  if (target === "saved-section") {
+    renderSavedAnswers();
+  }
+
+  if (target === "chat-section" && input && !input.disabled) {
+    input.focus();
+  }
+}
+
+let chatBtnClicks = 0;
+let chatBtnTimer = null;
+
 navItems.forEach(function (item) {
-  item.addEventListener("click", function () {
-    const target = item.dataset.section;
-
-    if (!target) {
-      return;
-    }
-
-    const section = document.getElementById(target);
-
-    if (!section) {
-      return;
-    }
-
-    navItems.forEach(function (nav) {
-      nav.classList.remove("active");
-    });
-
-    item.classList.add("active");
-
-    sections.forEach(function (section) {
-      section.classList.remove("active-section");
-    });
-
-    section.classList.add("active-section");
-
-    if (target !== "chat-section") {
-      showSectionSkeleton(section);
-    }
-
-    if (target === "history-section") {
-      renderHistory();
-    }
-
-    if (target === "saved-section") {
-      renderSavedAnswers();
-    }
-
-    if (target === "chat-section" && input && !input.disabled) {
-      input.focus();
+  item.addEventListener("click", function (e) {
+    if (item.id === "globalThemeToggleBtn") return;
+    e.preventDefault();
+    if (item.dataset.section === "chat-section") {
+      chatBtnClicks++;
+      if (chatBtnClicks === 1) {
+        chatBtnTimer = setTimeout(() => {
+          chatBtnClicks = 0;
+          navigateToSection(item);
+        }, 250);
+      } else if (chatBtnClicks === 2) {
+        clearTimeout(chatBtnTimer);
+        chatBtnClicks = 0;
+        confirmNewChatUI();
+      }
+    } else {
+      navigateToSection(item);
     }
   });
 });
@@ -1725,14 +1630,6 @@ navItems.forEach(function (item) {
 
 function startNewChat() {
   if (!chat) {
-    return;
-  }
-
-  const confirmed = confirm(
-    "Start a new chat? Your previous conversation will remain in Recent Conversations.",
-  );
-
-  if (!confirmed) {
     return;
   }
 
@@ -1765,6 +1662,7 @@ function startNewChat() {
   activeConversationId = null;
 
   removeStorageItem("activeConversationId");
+  clearPreviewPane();
 
   chat.innerHTML = `
     <div class="message-row assistant-row">
@@ -1813,58 +1711,12 @@ function startNewChat() {
 }
 
 if (newChatButton) {
-  /*
-   * Updated behavior:
-   * single-clicking New Chat starts a new chat.
-   */
-  newChatButton.addEventListener("click", startNewChat);
+  // Navigation listener handles single and double clicks for chat-section now.
 }
 
 /* ============================================================
    DARK MODE
 ============================================================ */
-
-function applyDarkMode(enabled) {
-  document.body.classList.toggle("dark-mode", Boolean(enabled));
-
-  if (darkModeToggle) {
-    darkModeToggle.checked = Boolean(enabled);
-  }
-}
-
-if (darkModeToggle) {
-  darkModeToggle.addEventListener("change", function () {
-    applyDarkMode(darkModeToggle.checked);
-
-    saveSettings();
-  });
-}
-
-/* ============================================================
-   TIMESTAMP SETTING
-============================================================ */
-
-if (timestampToggle) {
-  timestampToggle.addEventListener("change", function () {
-    updateTimestampVisibility();
-
-    saveSettings();
-  });
-}
-
-/* ============================================================
-   SOUND SETTING
-============================================================ */
-
-if (soundToggle) {
-  soundToggle.addEventListener("change", function () {
-    saveSettings();
-
-    if (soundToggle.checked) {
-      playNotificationSound();
-    }
-  });
-}
 
 /* ============================================================
    EXIT
@@ -2070,7 +1922,7 @@ document.addEventListener("click", function (event) {
 
   event.preventDefault();
 
-  openConversationFromHistory(item.dataset.historyId);
+  openPreviewFromHistory(item.dataset.historyId);
 });
 
 document.addEventListener("keydown", function (event) {
@@ -2089,53 +1941,16 @@ document.addEventListener("keydown", function (event) {
 
   event.preventDefault();
 
-  openConversationFromHistory(item.dataset.historyId);
+  openPreviewFromHistory(item.dataset.historyId);
 });
 
 if (clearHistoryButton) {
   clearHistoryButton.addEventListener("click", function (event) {
     event.preventDefault();
-
-    clearRecentConversations();
+    confirmClearHistoryUI();
   });
 }
 
-const exportHistoryButton = document.getElementById("exportHistoryButton");
-if (exportHistoryButton) {
-  exportHistoryButton.addEventListener("click", async function () {
-    try {
-      exportHistoryButton.disabled = true;
-      exportHistoryButton.textContent = "Exporting...";
-      const token = sessionStorage.getItem("chatbotAdminToken") || "";
-      const headers = { Accept: "text/plain" };
-      if (token) headers["X-Admin-Token"] = token;
-      const response = await fetch("/api/history/export", {
-        method: "GET",
-        headers,
-      });
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || "Export failed.");
-      }
-      const text = await response.text();
-      const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download =
-        "chat_history_" + new Date().toISOString().slice(0, 10) + ".txt";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } catch (e) {
-      alert("Failed to export history: " + e.message);
-    } finally {
-      exportHistoryButton.disabled = false;
-      exportHistoryButton.textContent = "📥 Export";
-    }
-  });
-}
 
 if (clearSavedAnswersBtn) {
   clearSavedAnswersBtn.addEventListener("click", function () {
@@ -2185,17 +2000,18 @@ if (input && form) {
 ============================================================ */
 
 function loadSettings() {
-  const settings = getSettings();
-
-  applyDarkMode(settings.darkMode);
-
-  if (timestampToggle) {
-    timestampToggle.checked = Boolean(settings.showTimestamps);
+  const saved = JSON.parse(localStorage.getItem("chatbotSettings") || "{}");
+  if (saved.darkMode) {
+    document.body.classList.add("dark-mode");
+  }
+  const isDark = document.body.classList.contains("dark-mode");
+  
+  const globalThemeBtn = document.getElementById("globalThemeToggleBtn");
+  if (globalThemeBtn) {
+    globalThemeBtn.innerHTML = isDark ? '<i data-lucide="sun" class="nav-icon"></i><span> Light Mode </span>' : '<i data-lucide="moon" class="nav-icon"></i><span> Dark Mode </span>';
   }
 
-  if (soundToggle) {
-    soundToggle.checked = Boolean(settings.soundNotifications);
-  }
+  if (typeof lucide !== "undefined") lucide.createIcons();
 }
 
 /* ============================================================
@@ -2326,14 +2142,7 @@ window.addEventListener("online", function () {
     return "FILE";
   };
 
-  const escapeAttribute = (value) =>
-    String(value ?? "")
-      .replaceAll("&", "&amp;")
-      .replaceAll('"', "&quot;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;");
-
-  const showToast = (message, type = "normal") => {
+    const showToast = (message, type = "normal") => {
     const existing = document.getElementById("chatbotFeatureToast");
 
     if (existing) {
@@ -2586,54 +2395,18 @@ window.addEventListener("online", function () {
     document.head.appendChild(style);
   };
 
-  const createFileControls = () => {
+    const createFileControls = () => {
     installFeatureStyles();
 
-    if (document.getElementById("chatbotFileInput")) {
-      return;
-    }
-
-    const fileInput = document.createElement("input");
-    fileInput.type = "file";
-    fileInput.id = "chatbotFileInput";
-    fileInput.hidden = true;
-    fileInput.accept = [
-      ".txt",
-      ".docx",
-      ".png",
-      ".jpg",
-      ".jpeg",
-      ".webp",
-      ".gif",
-      ".bmp",
-      "text/plain",
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      "image/png",
-      "image/jpeg",
-      "image/webp",
-      "image/gif",
-      "image/bmp",
-    ].join(",");
-
-    const attachButton = document.createElement("button");
-    attachButton.type = "button";
-    attachButton.className = "chatbot-attach-btn";
-    attachButton.title = "Attach a TXT, DOCX, or image file";
-    attachButton.setAttribute("aria-label", "Attach a file");
-    attachButton.innerHTML = `
-      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path d="M8.5 12.5 14.86 6.14a3 3 0 1 1 4.24 4.24l-7.42 7.42a5 5 0 0 1-7.07-7.07l7.07-7.07" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    `;
-
-    const filePill = document.createElement("div");
-    filePill.className = "chatbot-file-pill";
-    filePill.setAttribute("aria-live", "polite");
-    filePill.innerHTML = `
-      <span class="chatbot-file-type">FILE</span>
-      <span class="chatbot-file-name"></span>
-      <button type="button" class="chatbot-file-remove" aria-label="Remove attached file" title="Remove file">×</button>
-    `;
+    const fileInput = document.getElementById("chatbotFileInput");
+    const attachButton = document.getElementById("hardcodedAttachBtn");
+    const filePill = document.getElementById("hardcodedFilePill");
+    
+    if (!fileInput || !attachButton || !filePill) return;
+    
+    // Prevent double binding
+    if (fileInput.dataset.bound) return;
+    fileInput.dataset.bound = "true";
 
     const clearFile = () => {
       selectedFile = null;
@@ -2644,63 +2417,40 @@ window.addEventListener("online", function () {
 
     const setFile = (file) => {
       selectedFile = file || null;
-
       if (!selectedFile) {
         clearFile();
         return;
       }
-
-      filePill.querySelector(".chatbot-file-type").textContent =
-        getFileTypeLabel(selectedFile);
-      filePill.querySelector(".chatbot-file-name").textContent =
-        `${selectedFile.name} · ${Math.max(1, Math.round(selectedFile.size / 1024))} KB`;
+      filePill.querySelector(".chatbot-file-type").textContent = getFileTypeLabel(selectedFile);
+      filePill.querySelector(".chatbot-file-name").textContent = `${selectedFile.name} · ${Math.max(1, Math.round(selectedFile.size / 1024))} KB`;
       filePill.classList.add("visible");
     };
 
     attachButton.addEventListener("click", () => fileInput.click());
 
-    filePill
-      .querySelector(".chatbot-file-remove")
-      .addEventListener("click", () => clearFile());
+    filePill.querySelector(".chatbot-file-remove").addEventListener("click", () => clearFile());
 
     fileInput.addEventListener("change", () => {
       const file = fileInput.files?.[0] || null;
-
-      if (!file) {
-        return;
-      }
-
+      if (!file) return;
       const extension = getExtension(file.name);
-
       if (!SUPPORTED_EXTENSIONS.has(extension)) {
         clearFile();
-        showToast(
-          "Unsupported file. Use TXT, DOCX, PNG, JPG, JPEG, WEBP, GIF, or BMP.",
-          "error",
-        );
+        showToast("Unsupported file. Use TXT, DOCX, PNG, JPG, JPEG, WEBP, GIF, or BMP.", "error");
         return;
       }
-
       if (file.size <= 0) {
         clearFile();
         showToast("The selected file is empty.", "error");
         return;
       }
-
       if (file.size > MAX_FILE_SIZE) {
         clearFile();
         showToast("File is too large. Maximum allowed size is 15 MB.", "error");
         return;
       }
-
       setFile(file);
     });
-
-    // Insert the controls inside the existing input bar without replacing
-    // its input or send button.
-    inputBar.insertBefore(attachButton, messageInput);
-    inputBar.insertBefore(filePill, messageInput);
-    inputBar.appendChild(fileInput);
 
     window.__chatbotSelectedFile = () => selectedFile;
     window.__chatbotClearSelectedFile = clearFile;
@@ -2746,10 +2496,10 @@ window.addEventListener("online", function () {
     }
 
     refreshRequestBusy = true;
-    const oldText =
-      button.querySelector(".refresh-label")?.textContent || "Refresh response";
-    button.disabled = true;
-    button.querySelector(".refresh-label").textContent = "Refreshing...";
+
+    const oldText = button.title || "Refresh response";
+
+    button.title = "Refreshing...";
 
     try {
       const response = await fetch("/api/refresh", {
@@ -2791,6 +2541,23 @@ window.addEventListener("online", function () {
       }
 
       answerContainer.innerHTML = formatAssistantText(answer);
+      
+      // Update badge!
+      const source = data.source || "groq_ai";
+      let newBadge = "";
+      if (source === "knowledge_file") {
+        newBadge = `<span class="source-badge badge-knowledge">📚 Knowledge Base</span>`;
+      } else if (source === "keyword_rule") {
+        newBadge = `<span class="source-badge badge-keyword">⚡ Keyword Rule</span>`;
+      } else if (source === "groq_ai") {
+        newBadge = `<span class="source-badge badge-groq">🧠 Groq AI</span>`;
+      }
+      
+      const metaContainer = row.querySelector(".message-meta.timestamp");
+      if (metaContainer) {
+        metaContainer.innerHTML = `${newBadge}<span>${escapeHtml(getCurrentTime())}</span>`;
+      }
+      
       row.dataset.refreshedAt = new Date().toISOString();
 
       saveChatData();
@@ -2800,16 +2567,16 @@ window.addEventListener("online", function () {
         playNotificationSound();
       }
 
-      button.querySelector(".refresh-label").textContent = "Updated";
+      button.title = "Updated";
 
       window.setTimeout(() => {
         if (button.isConnected) {
-          button.querySelector(".refresh-label").textContent = oldText;
+          button.title = oldText;
         }
       }, 1200);
     } catch (error) {
       console.error("Refresh response error:", error);
-      button.querySelector(".refresh-label").textContent = oldText;
+      button.title = oldText;
       showToast(
         error?.message || "Could not refresh the AI response.",
         "error",
@@ -2818,9 +2585,7 @@ window.addEventListener("online", function () {
       refreshRequestBusy = false;
       button.disabled = false;
     }
-  };
-
-  const addRefreshButtonToRow = (row) => {
+  };  const addRefreshButtonToRow = (row) => {
     if (!row || !row.classList.contains("assistant-row")) {
       return;
     }
@@ -2832,13 +2597,17 @@ window.addEventListener("online", function () {
       return;
     }
 
-    if (row.querySelector(".chatbot-refresh-row")) {
+    if (row.querySelector(".chatbot-refresh-btn")) {
       return;
     }
 
     const bubble = row.querySelector(".assistant-bubble");
-
     if (!bubble) {
+      return;
+    }
+    
+    let actionsBox = bubble.querySelector(".reaction-actions");
+    if (!actionsBox) {
       return;
     }
 
@@ -2849,45 +2618,21 @@ window.addEventListener("online", function () {
       return;
     }
 
-    const refreshRow = document.createElement("div");
-    refreshRow.className = "chatbot-refresh-row";
-
     const button = document.createElement("button");
     button.type = "button";
     button.className = "chatbot-refresh-btn";
     button.setAttribute("aria-label", "Refresh this AI response");
-    button.title = "Generate a new answer to the same question";
-    button.innerHTML = `${svgRefresh}<span class="refresh-label">Refresh response</span>`;
+    button.title = "Refresh response";
+    button.innerHTML = `<i data-lucide="refresh-cw" style="width: 16px; height: 16px;"></i>`;
 
     button.addEventListener("click", () => refreshAnswer(row, button));
 
-    refreshRow.appendChild(button);
-
-    const meta = bubble.querySelector(":scope > .message-meta");
-
-    if (meta) {
-      bubble.insertBefore(refreshRow, meta);
-    } else {
-      bubble.appendChild(refreshRow);
+    actionsBox.appendChild(button);
+    
+    // Call lucide to render the new icon
+    if (typeof lucide !== 'undefined' && lucide.createIcons) {
+      lucide.createIcons();
     }
-  };
-
-  const originalAddAssistantMessage = addAssistantMessage;
-
-  // Extend the existing function rather than replacing its visual markup.
-  addAssistantMessage = function (text, question = "", entryId = "", source = "") {
-    const row = originalAddAssistantMessage(text, source);
-
-    if (!row) {
-      return row;
-    }
-
-    row.dataset.entryId = String(entryId || "");
-    row.dataset.question = String(question || "");
-
-    saveChatData();
-    addRefreshButtonToRow(row);
-
     return row;
   };
 
@@ -3081,7 +2826,7 @@ window.addEventListener("online", function () {
       }
 
       if (typeof addErrorMessage === "function") {
-        addErrorMessage(instruction || `Read and analyze file: ${file.name}`);
+        addErrorMessage(instruction || `Read and analyze file: ${file.name}`, error?.message);
       }
 
       showToast(error?.message || "Could not read the selected file.", "error");
@@ -3124,7 +2869,7 @@ window.addEventListener("online", function () {
   "use strict";
 
   const knowledgeSection = document.getElementById("knowledge-section");
-  const knowledgeList = document.getElementById("knowledgeList");
+  const knowledgeList = document.getElementById("knowledgeTableBody");
   const questionInput = document.getElementById("knowledgeQuestion");
   const answerInput = document.getElementById("knowledgeAnswer");
   const saveButton = document.getElementById("knowledgeSaveButton");
@@ -3176,33 +2921,7 @@ window.addEventListener("online", function () {
     return data;
   };
 
-  const escapeText = (value) => String(value ?? "");
-
-  const renderKnowledge = () => {
-    if (!knowledgeItems.length) {
-      knowledgeList.innerHTML = `<div class="knowledge-empty-state">No questions are stored yet. Add your first question above.</div>`;
-      return;
-    }
-
-    knowledgeList.innerHTML = knowledgeItems
-      .map(
-        (item, index) => `
-        <article class="knowledge-item" data-question="${escapeHtml(item.question)}">
-          <div class="knowledge-item-number">${index + 1}</div>
-          <div class="knowledge-item-main">
-            <div class="knowledge-question">${escapeHtml(item.question)}</div>
-            <div class="knowledge-answer">${escapeHtml(item.answer)}</div>
-            <span class="knowledge-category-badge">${escapeHtml(item.category || "General")}</span>
-          </div>
-          <div class="knowledge-item-actions">
-            <button type="button" class="knowledge-edit-btn" data-edit-index="${index}">Edit</button>
-            <button type="button" class="knowledge-delete-btn" data-delete-index="${index}">Delete</button>
-          </div>
-        </article>
-      `,
-      )
-      .join("");
-  };
+    const renderKnowledge = () => { if (typeof window.__chatbotRenderPaginatedKnowledge === "function") window.__chatbotRenderPaginatedKnowledge(); };
 
   const loadKnowledge = async () => {
     knowledgeList.innerHTML = `<div class="knowledge-empty-state">Loading knowledge...</div>`;
@@ -3244,6 +2963,7 @@ window.addEventListener("online", function () {
     }
   };
 
+  window.__chatbotResetKnowledgeForm = () => resetForm();
   const resetForm = () => {
     editingQuestion = "";
     questionInput.value = "";
@@ -3254,6 +2974,10 @@ window.addEventListener("online", function () {
   };
 
   const startEdit = (index) => {
+    if (typeof window.__chatbotAdminUnlocked === "function" && !window.__chatbotAdminUnlocked()) {
+      alert("Admin access required. Please unlock Admin Mode first.");
+      return;
+    }
     const item = knowledgeItems[index];
     if (!item) return;
 
@@ -3268,6 +2992,10 @@ window.addEventListener("online", function () {
   };
 
   saveButton.addEventListener("click", async () => {
+    if (typeof window.__chatbotAdminUnlocked === "function" && !window.__chatbotAdminUnlocked()) {
+      alert("Admin access required. Please unlock Admin Mode first.");
+      return;
+    }
     const question = questionInput.value.trim();
     const answer = answerInput.value.trim();
 
@@ -3316,12 +3044,21 @@ window.addEventListener("online", function () {
   knowledgeList.addEventListener("click", async (event) => {
     const editButton = event.target.closest("[data-edit-index]");
     if (editButton) {
+      if (typeof window.__chatbotAdminUnlocked === "function" && !window.__chatbotAdminUnlocked()) {
+        alert("Admin access required. Please unlock Admin Mode first.");
+        return;
+      }
       startEdit(Number.parseInt(editButton.dataset.editIndex, 10));
       return;
     }
 
     const deleteButton = event.target.closest("[data-delete-index]");
     if (!deleteButton) return;
+
+    if (typeof window.__chatbotAdminUnlocked === "function" && !window.__chatbotAdminUnlocked()) {
+      alert("Admin access required. Please unlock Admin Mode first.");
+      return;
+    }
 
     const index = Number.parseInt(deleteButton.dataset.deleteIndex, 10);
     const item = knowledgeItems[index];
@@ -3377,11 +3114,12 @@ window.addEventListener("online", function () {
   );
   const categoryFilter = document.getElementById("knowledgeCategoryFilter");
   const knowledgeSearch = document.getElementById("knowledgeSearch");
-  const knowledgeList = document.getElementById("knowledgeList");
+  const knowledgeList = document.getElementById("knowledgeTableBody");
 
   if (!knowledgeSaveButton || !knowledgeList) return;
 
   const adminKey = "chatbotAdminUnlocked";
+  window.__chatbotAdminUnlocked = () => adminUnlocked === true;
 
   const showAdminMessage = (text, type = "") => {
     if (!adminMessage) return;
@@ -3409,9 +3147,9 @@ window.addEventListener("online", function () {
     if (adminLogoutButton) adminLogoutButton.hidden = !unlocked;
     if (adminPassword) adminPassword.disabled = unlocked;
 
-    const knowledgeAddCard = document.getElementById("knowledgeAddCard");
+    const knowledgeAddCard = document.getElementById("addKnowledgeBtn");
     if (knowledgeAddCard) {
-      knowledgeAddCard.style.display = unlocked ? "block" : "none";
+      knowledgeAddCard.style.display = unlocked ? "flex" : "none";
     }
   };
 
@@ -3492,10 +3230,10 @@ window.addEventListener("online", function () {
     toggleAdminVisBtn.addEventListener("click", () => {
       if (adminPassword.type === "password") {
         adminPassword.type = "text";
-        toggleAdminVisBtn.textContent = "🙈";
+        toggleAdminVisBtn.innerHTML = `<i data-lucide="eye-off" style="width: 1em; height: 1em; vertical-align: middle;"></i>`;
       } else {
         adminPassword.type = "password";
-        toggleAdminVisBtn.textContent = "👁️";
+        toggleAdminVisBtn.innerHTML = `<i data-lucide="eye" style="width: 1em; height: 1em; vertical-align: middle;"></i>`;
       }
     });
   }
@@ -3525,44 +3263,7 @@ window.addEventListener("online", function () {
   const knowledgeObserver = new MutationObserver(() => applyAdminState());
   knowledgeObserver.observe(knowledgeList, { childList: true, subtree: true });
 
-  const renderFilteredKnowledge = () => {
-    const items = Array.isArray(window.__chatbotKnowledgeItems)
-      ? window.__chatbotKnowledgeItems
-      : [];
-    const category = categoryFilter?.value || "all";
-    const query = (knowledgeSearch?.value || "").trim().toLowerCase();
-    const filtered = items
-      .map((item, index) => ({ item, index }))
-      .filter(({ item }) => {
-        const matchesCategory =
-          category === "all" || (item.category || "General") === category;
-        const haystack =
-          `${item.question || ""} ${item.answer || ""}`.toLowerCase();
-        return matchesCategory && (!query || haystack.includes(query));
-      });
-    if (!filtered.length) {
-      knowledgeList.innerHTML = `<div class="knowledge-empty-state">No FAQs match this filter.</div>`;
-      return;
-    }
-    knowledgeList.innerHTML = filtered
-      .map(
-        ({ item, index }) => `
-      <article class="knowledge-item">
-        <div class="knowledge-item-number">${index + 1}</div>
-        <div class="knowledge-item-main">
-          <div class="knowledge-question">${escapeHtml(item.question)}</div>
-          <div class="knowledge-answer">${escapeHtml(item.answer)}</div>
-          <span class="knowledge-category-badge">${escapeHtml(item.category || "General")}</span>
-        </div>
-        <div class="knowledge-item-actions">
-          <button type="button" class="knowledge-edit-btn" data-edit-index="${index}">Edit</button>
-          <button type="button" class="knowledge-delete-btn" data-delete-index="${index}">Delete</button>
-        </div>
-      </article>`,
-      )
-      .join("");
-    // Restore edit/delete controls through the original module by letting it reload when filters change.
-  };
+    const renderFilteredKnowledge = () => { if (typeof window.__chatbotRenderPaginatedKnowledge === 'function') window.__chatbotRenderPaginatedKnowledge(); };
 
   categoryFilter?.addEventListener("change", () => {
     const items = window.__chatbotKnowledgeItems;
@@ -3604,3 +3305,730 @@ if (chat) {
   });
 }
 
+
+
+
+
+
+document.addEventListener("click", function (event) {
+  const btn = event.target.closest(".copy-btn");
+  if (!btn) return;
+  const bubble = btn.closest(".assistant-bubble");
+  if (!bubble) return;
+  const content = bubble.querySelector(".assistant-content");
+  if (content) {
+    navigator.clipboard.writeText(content.textContent.trim());
+    const originalHTML = btn.innerHTML;
+    btn.innerHTML = `<i data-lucide="check" style="width: 16px; height: 16px;"></i>`;
+    if (typeof lucide !== "undefined") lucide.createIcons();
+    setTimeout(() => { btn.innerHTML = originalHTML; if (typeof lucide !== "undefined") lucide.createIcons(); }, 2000);
+  }
+});
+
+
+document.getElementById("clearChatBtnTop")?.addEventListener("click", () => {
+  if (typeof confirmNewChatUI === "function") {
+    confirmNewChatUI();
+  }
+});
+
+const globalThemeToggleBtn = document.getElementById("globalThemeToggleBtn");
+
+function toggleThemeAction(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  document.body.classList.toggle("dark-mode");
+  const isDark = document.body.classList.contains("dark-mode");
+  
+  if (globalThemeToggleBtn) {
+    globalThemeToggleBtn.innerHTML = isDark ? '<i data-lucide="sun" class="nav-icon"></i><span> Light Mode </span>' : '<i data-lucide="moon" class="nav-icon"></i><span> Dark Mode </span>';
+  }
+  
+  if (typeof lucide !== "undefined") lucide.createIcons();
+  saveSettings();
+}
+
+if (globalThemeToggleBtn) {
+  globalThemeToggleBtn.addEventListener("click", toggleThemeAction);
+}
+
+
+
+
+
+
+
+
+
+
+
+/* ============================================================
+   KNOWLEDGE BASE MODAL LOGIC
+============================================================ */
+(function() {
+  const addBtn = document.getElementById("addKnowledgeBtn");
+  const modal = document.getElementById("knowledgeModal");
+  const cancelBtn = document.getElementById("knowledgeCancelButton");
+  const saveBtn = document.getElementById("knowledgeSaveButton");
+
+  if (!addBtn || !modal) return;
+
+  function showModal() {
+    if (typeof window.__chatbotAdminUnlocked === "function" && !window.__chatbotAdminUnlocked()) {
+      alert("Admin access required. Please unlock Admin Mode first.");
+      return;
+    }
+    modal.style.display = "flex";
+  }
+
+  function hideModal() {
+    modal.style.display = "none";
+    if (typeof window.__chatbotResetKnowledgeForm === "function") window.__chatbotResetKnowledgeForm();
+  }
+
+  addBtn.addEventListener("click", showModal);
+  
+  if (cancelBtn) {
+    cancelBtn.addEventListener("click", hideModal);
+  }
+
+  // Ensure startEdit also shows modal (intercepting existing behavior)
+  const list = document.getElementById("knowledgeTableBody");
+  if (list) {
+    list.addEventListener("click", (e) => {
+      const editBtn = e.target.closest("[data-edit-index]");
+      if (editBtn) {
+        setTimeout(showModal, 10); // Let the original handler run, then show modal
+      }
+    });
+  }
+
+  if (saveBtn) {
+    saveBtn.addEventListener("click", () => {
+      // In a real scenario, this waits for success. For UI demo, close after brief delay.
+      setTimeout(hideModal, 500); 
+    });
+  }
+})();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function openPreviewFromHistory(id) {
+  const item = readHistory().find(h => h.id === id) || mergedHistoryItems().find(h => String(h.id) === String(id));
+  if (!item) return;
+
+  document.querySelectorAll("#historyList .history-item").forEach(el => el.classList.remove("active-preview"));
+  const domItem = document.querySelector(`.history-item[data-history-id="${id}"]`);
+  if (domItem) domItem.classList.add("active-preview");
+
+  const emptyEl = document.getElementById("historyPreviewEmpty");
+  const contentEl = document.getElementById("historyPreviewContent");
+  if (emptyEl) emptyEl.style.display = "none";
+  if (contentEl) contentEl.style.display = "flex";
+
+  const titleTarget = document.getElementById("historyPreviewTitle");
+  const dateTarget = document.getElementById("historyPreviewDate");
+  if (titleTarget) titleTarget.textContent = item.title || "Conversation";
+  if (dateTarget) dateTarget.textContent = item.date || "";
+
+  const bubblesTarget = document.getElementById("historyPreviewBubbles");
+  if (bubblesTarget) {
+    if (item.html) {
+      bubblesTarget.innerHTML = sanitizeStoredHtml(item.html);
+    } else if (item.backendSession && Array.isArray(item.backendSession.messages)) {
+      // Backend format
+      bubblesTarget.innerHTML = item.backendSession.messages.map(m => {
+        return `
+          <div class="message-row user-row"><div class="bubble user-bubble">${escapeHtml(m.question)}</div><div class="user-avatar"><i data-lucide="user"></i></div></div>
+          <div class="message-row assistant-row"><div class="assistant-avatar"><i data-lucide="bot"></i></div><div class="bubble assistant-bubble">${formatAssistantText(m.answer)}</div></div>
+        `;
+      }).join("");
+    } else {
+      bubblesTarget.innerHTML = "<p>No content available.</p>";
+    }
+  }
+
+  const loadBtn = document.getElementById("historyPreviewLoadBtn");
+  if (loadBtn) loadBtn.dataset.historyId = id;
+  if (window.lucide) { window.lucide.createIcons(); }
+}
+
+document.addEventListener("click", function(event) {
+  const loadBtn = event.target.closest("#historyPreviewLoadBtn");
+  if (!loadBtn || !loadBtn.dataset.historyId) return;
+  openConversationFromHistory(loadBtn.dataset.historyId);
+
+});
+
+
+
+
+
+
+
+
+
+
+function clearPreviewPane() {
+  const emptyEl = document.getElementById("historyPreviewEmpty");
+  const contentEl = document.getElementById("historyPreviewContent");
+  if (emptyEl) emptyEl.style.display = "flex";
+  if (contentEl) contentEl.style.display = "none";
+  
+  const titleTarget = document.getElementById("historyPreviewTitle");
+  const dateTarget = document.getElementById("historyPreviewDate");
+  if (titleTarget) titleTarget.textContent = "";
+  if (dateTarget) dateTarget.textContent = "";
+  
+  const bubblesTarget = document.getElementById("historyPreviewBubbles");
+  if (bubblesTarget) bubblesTarget.innerHTML = "";
+  
+  const loadBtn = document.getElementById("historyPreviewLoadBtn");
+  if (loadBtn) delete loadBtn.dataset.historyId;
+}
+
+
+
+
+
+
+
+
+// Eye Toggle logic
+(function() {
+  const toggleBtn = document.getElementById('toggleAdminPassword');
+  const passwordInput = document.getElementById('adminPassword');
+  if (toggleBtn && passwordInput) {
+    toggleBtn.addEventListener('click', () => {
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleBtn.innerHTML = '<i data-lucide="eye-off" style="width: 16px; height: 16px;"></i>';
+      } else {
+        passwordInput.type = 'password';
+        toggleBtn.innerHTML = '<i data-lucide="eye" style="width: 16px; height: 16px;"></i>';
+      }
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+    });
+  }
+})();
+
+// Modal Close Logic
+(function() {
+  const modal = document.getElementById('knowledgeModal');
+  const closeIconBtn = document.getElementById('knowledgeCloseIconBtn');
+  const cancelBtn = document.getElementById('knowledgeCancelButton');
+  
+  function hideModal() {
+    if (modal) modal.style.display = 'none';
+    if (typeof window.__chatbotResetKnowledgeForm === "function") window.__chatbotResetKnowledgeForm();
+  }
+  
+  if (closeIconBtn) closeIconBtn.addEventListener('click', hideModal);
+  
+  // Click outside to close
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        hideModal();
+      }
+    });
+  }
+  
+  // Escape key to close
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal && modal.style.display === 'flex') {
+      hideModal();
+    }
+  });
+})();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Pagination & Render Logic
+window.kbCurrentPage = 1;
+window.kbItemsPerPage = 10;
+window.__chatbotRenderPaginatedKnowledge = function() {
+  const list = document.getElementById('knowledgeTableBody');
+  const countSpan = document.getElementById('knowledgeTotalCount');
+  const searchInput = document.getElementById('knowledgeSearch');
+  
+  const items = Array.isArray(window.__chatbotKnowledgeItems) ? window.__chatbotKnowledgeItems : [];
+  const query = (searchInput?.value || '').trim().toLowerCase();
+  
+  const filtered = items
+    .map((item, index) => ({ item, index }))
+    .filter(({ item }) => {
+      if (query && !item.question.toLowerCase().includes(query) && !item.answer.toLowerCase().includes(query)) {
+        return false;
+      }
+      return true;
+    });
+    
+  if (countSpan) countSpan.textContent = items.length;
+
+  const totalPages = Math.ceil(filtered.length / window.kbItemsPerPage) || 1;
+  if (window.kbCurrentPage > totalPages) window.kbCurrentPage = totalPages;
+
+  const prevBtn = document.getElementById('kbPagePrev');
+  const nextBtn = document.getElementById('kbPageNext');
+  const currPageBtn = document.getElementById('kbPageCurr');
+
+  if (prevBtn) prevBtn.disabled = window.kbCurrentPage === 1;
+  if (nextBtn) nextBtn.disabled = window.kbCurrentPage === totalPages;
+  if (currPageBtn) currPageBtn.textContent = window.kbCurrentPage;
+  
+  if (prevBtn) prevBtn.style.opacity = window.kbCurrentPage === 1 ? '0.5' : '1';
+  if (nextBtn) nextBtn.style.opacity = window.kbCurrentPage === totalPages ? '0.5' : '1';
+
+  if (!filtered.length) {
+    if (list) list.innerHTML = '<tr><td colspan="4" style="padding: 16px; text-align: center; color: var(--text-light);">No FAQs match this filter.</td></tr>';
+    return;
+  }
+  
+  const startIndex = (window.kbCurrentPage - 1) * window.kbItemsPerPage;
+  const paginated = filtered.slice(startIndex, startIndex + window.kbItemsPerPage);
+  
+  if (list) {
+    list.innerHTML = paginated
+      .map(
+        ({ item, index }, localIdx) => {
+          const displayNum = startIndex + localIdx + 1;
+          return `<tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 16px; color: var(--text-light);">${displayNum}</td>
+            <td style="padding: 16px; color: var(--text); font-weight: 500;">${escapeHtml(item.question)}</td>
+            <td style="padding: 16px; color: var(--text-light);">${escapeHtml(item.answer)}</td>
+            <td style="padding: 16px; text-align: center;">
+              <div style="display: flex; gap: 8px; justify-content: center;">
+                <button class="knowledge-edit-btn" data-edit-index="${index}" style="background: #2563EB; color: white; border: none; width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                  <i data-lucide="pencil" style="width: 14px; height: 14px;"></i>
+                </button>
+                <button class="knowledge-delete-btn" data-delete-index="${index}" style="background: #EF4444; color: white; border: none; width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                  <i data-lucide="trash-2" style="width: 14px; height: 14px;"></i>
+                </button>
+              </div>
+            </td>
+          </tr>`;
+        }
+      )
+      .join('');
+  }
+  
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+  
+  const isUnlocked = typeof window.__chatbotAdminUnlocked === 'function' ? window.__chatbotAdminUnlocked() : false;
+  document.querySelectorAll('.knowledge-edit-btn, .knowledge-delete-btn').forEach((button) => {
+    button.disabled = !isUnlocked;
+    button.style.display = isUnlocked ? 'inline-block' : 'none';
+  });
+};
+
+(function() {
+  const prevBtn = document.getElementById('kbPagePrev');
+  const nextBtn = document.getElementById('kbPageNext');
+  if (prevBtn) {
+    prevBtn.addEventListener('click', () => {
+      if (window.kbCurrentPage > 1) {
+        window.kbCurrentPage--;
+        window.__chatbotRenderPaginatedKnowledge();
+      }
+    });
+  }
+  if (nextBtn) {
+    nextBtn.addEventListener('click', () => {
+      window.kbCurrentPage++;
+      window.__chatbotRenderPaginatedKnowledge();
+    });
+  }
+  
+  const searchInput = document.getElementById('knowledgeSearch');
+  if (searchInput) {
+    searchInput.addEventListener('input', () => {
+      window.kbCurrentPage = 1;
+      window.__chatbotRenderPaginatedKnowledge();
+    });
+  }
+})();
+
+
+
+
+
+
+
+
+
+
+
+
+/* ============================================================
+   USER TYPING INDICATOR
+============================================================ */
+(() => {
+  const chat = document.getElementById("chat");
+  const input = document.getElementById("promptInput");
+  const form = document.getElementById("promptForm");
+
+  if (!chat || !input || !form) return;
+
+  let typingRow = null;
+
+  function showTyping() {
+    if (!typingRow) {
+      typingRow = document.createElement("div");
+      typingRow.className = "message-row user-row typing-indicator-row";
+      typingRow.innerHTML = `
+        <div class="bubble user-bubble" style="background: transparent; box-shadow: none; padding: 0; color: var(--text-light); font-style: italic; min-height: 0; height: auto !important;">
+          Typing...
+        </div>
+        <div class="user-avatar" style="visibility: hidden; min-width: 36px !important; margin: 0 !important;"></div>`;
+    }
+    if (!typingRow.isConnected) {
+      const wasNearBottom = chat.scrollHeight - chat.scrollTop - chat.clientHeight < 150;
+      chat.appendChild(typingRow);
+      if (wasNearBottom) chat.scrollTop = chat.scrollHeight;
+    }
+  }
+
+  function hideTyping() {
+    if (typingRow && typingRow.isConnected) {
+      typingRow.remove();
+    }
+  }
+  
+  // Make hideTyping available globally for generateResponse
+  window.__hideUserTyping = hideTyping;
+
+  input.addEventListener("input", () => {
+    if (input.value.trim().length > 0) {
+      showTyping();
+    } else {
+      hideTyping();
+    }
+  });
+
+  form.addEventListener("submit", () => {
+    hideTyping();
+  });
+})();
+
+/* ============================================================
+   EXPORT CONVERSATION HISTORY
+============================================================ */
+function confirmExportHistoryUI() {
+  const history = mergedHistoryItems();
+  
+  if (!history || !history.length) {
+    alert("No conversation history is currently available to export.");
+    return;
+  }
+
+  const overlay = document.createElement("div");
+  overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:100000;backdrop-filter:blur(2px);";
+  
+  const box = document.createElement("div");
+  box.style.cssText = "background:var(--surface,#fff);padding:24px;border-radius:12px;box-shadow:0 10px 25px rgba(0,0,0,0.2);width:90%;max-width:400px;border:1px solid var(--border,#e2e8f0);animation:fadeIn 0.2s ease-out; display:flex; flex-direction:column; max-height: 80vh;";
+  
+  const title = document.createElement("h3");
+  title.innerText = "Export Conversation History";
+  title.style.cssText = "margin:0 0 16px 0;font-size:18px;color:var(--text,#172033);font-weight:700;line-height:1.4;";
+  
+  const listContainer = document.createElement("div");
+  listContainer.style.cssText = "flex: 1; overflow-y: auto; margin-bottom: 16px; border: 1px solid var(--border); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 8px;";
+  
+  history.forEach((item, index) => {
+    const label = document.createElement("label");
+    label.style.cssText = "display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; color: var(--text); padding: 4px 0;";
+    
+    const cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.className = "export-checkbox";
+    cb.value = index;
+    cb.checked = false;
+    
+    const textSpan = document.createElement("span");
+    textSpan.style.cssText = "white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 300px;";
+    textSpan.innerText = item.title || item.question || `Conversation ${index + 1}`;
+    
+    label.appendChild(cb);
+    label.appendChild(textSpan);
+    listContainer.appendChild(label);
+  });
+
+  const btnRow = document.createElement("div");
+  btnRow.style.cssText = "display:flex;gap:12px;justify-content:flex-end;";
+  
+  const selectAllBtn = document.createElement("button");
+  selectAllBtn.innerText = "Select All";
+  selectAllBtn.style.cssText = "background:transparent;color:#2563EB;border:none;padding:10px 16px;border-radius:8px;font-weight:600;cursor:pointer; margin-right: auto;";
+  let allSelected = false;
+  selectAllBtn.onclick = () => {
+    allSelected = !allSelected;
+    box.querySelectorAll(".export-checkbox").forEach(cb => cb.checked = allSelected);
+    selectAllBtn.innerText = allSelected ? "Deselect All" : "Select All";
+  };
+
+  const cancelBtn = document.createElement("button");
+  cancelBtn.innerText = "Cancel";
+  cancelBtn.style.cssText = "background:var(--surface-soft,#f1f5f9);color:var(--text-light,#64748b);border:none;padding:10px 16px;border-radius:8px;font-weight:600;cursor:pointer;";
+  cancelBtn.onclick = () => overlay.remove();
+  
+  const exportBtn = document.createElement("button");
+  exportBtn.innerText = "Export as TXT";
+  exportBtn.style.cssText = "background:#2563EB;color:white;border:none;padding:10px 16px;border-radius:8px;font-weight:600;cursor:pointer;";
+  exportBtn.onclick = () => {
+    const selectedIndexes = Array.from(box.querySelectorAll(".export-checkbox"))
+                                 .filter(cb => cb.checked)
+                                 .map(cb => parseInt(cb.value, 10));
+    
+    if (selectedIndexes.length === 0) {
+      alert("Please select at least one conversation to export.");
+      return;
+    }
+    
+    const selectedHistory = selectedIndexes.map(idx => history[idx]);
+    generateAndDownloadExport(selectedHistory);
+    overlay.remove();
+  };
+  
+  btnRow.appendChild(selectAllBtn);
+  btnRow.appendChild(cancelBtn);
+  btnRow.appendChild(exportBtn);
+  
+  box.appendChild(title);
+  box.appendChild(listContainer);
+  box.appendChild(btnRow);
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+}
+
+function generateAndDownloadExport(selectedHistory) {
+  let txtContent = "CHATBOT CONVERSATION HISTORY\n========================================\n\n";
+  
+  selectedHistory.forEach((conv, index) => {
+    txtContent += `Conversation ${index + 1}\n`;
+    
+    let convDate = "Unknown Date";
+    let convTime = "";
+    if (conv.date) {
+      const parts = conv.date.split(", ");
+      if (parts.length === 2) {
+        convDate = `Date: ${parts[0]}`;
+        convTime = `\nTime: ${parts[1]}`;
+      } else {
+        convDate = `Date: ${conv.date}`;
+      }
+    } else {
+        if (conv.backendSession && conv.backendSession.updatedAt) {
+            const d = new Date(conv.backendSession.updatedAt);
+            convDate = `Date: ` + d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+            convTime = `\nTime: ` + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+        }
+    }
+    
+    txtContent += `${convDate}${convTime}\n----------------------------------------\n\n`;
+    
+    const messages = [];
+    if (conv._backend && conv.backendSession && Array.isArray(conv.backendSession.messages)) {
+      conv.backendSession.messages.forEach(m => {
+        messages.push({ role: "USER", text: m.question || "" });
+        messages.push({ role: "BOT", text: m.answer || "" });
+      });
+    } else if (conv.html) {
+      const temp = document.createElement("div");
+      temp.innerHTML = conv.html;
+      temp.style.cssText = "position:absolute;left:-9999px;visibility:hidden;width:1000px;";
+      document.body.appendChild(temp);
+      
+      const rows = temp.querySelectorAll(".message-row");
+      rows.forEach(row => {
+        if (row.classList.contains("welcome-state") || row.classList.contains("loading-message")) return;
+        const isUser = row.classList.contains("user-row");
+        const bubble = row.querySelector(".bubble");
+        if (bubble) {
+          const clone = bubble.cloneNode(true);
+          clone.querySelectorAll(".message-meta, .user-edit-row, .message-actions, button, time, .typing-indicator").forEach(el => el.remove());
+          
+          let text = "";
+          if (clone.innerText !== undefined) {
+             text = clone.innerText.trim();
+          } else {
+             clone.innerHTML = clone.innerHTML.replace(/<br\s*[\/]?>/gi, "\n").replace(/<\/p>/gi, "\n\n");
+             text = clone.textContent.trim();
+          }
+          if (text) {
+             messages.push({ role: isUser ? "USER" : "BOT", text: text });
+          }
+        }
+      });
+      document.body.removeChild(temp);
+    } else if (conv.question) {
+      messages.push({ role: "USER", text: conv.question });
+      if (conv.answer) {
+        messages.push({ role: "BOT", text: conv.answer });
+      }
+    }
+    
+    messages.forEach(m => {
+      txtContent += `${m.role}:\n${m.text}\n\n`;
+    });
+    
+    txtContent += `========================================\n\n`;
+  });
+  
+  const blob = new Blob([txtContent], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `Chatbot_History_${new Date().toISOString().slice(0,10)}.txt`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+(() => {
+  const exportBtn = document.getElementById("exportHistoryButtonUI");
+  if (exportBtn) {
+    exportBtn.addEventListener("click", () => {
+      if (exportBtn.disabled) {
+        alert("No conversation history is currently available to export.");
+        return;
+      }
+      confirmExportHistoryUI();
+    });
+  }
+})();
+/* ============================================================
+   USER MESSAGE EDITING
+============================================================ */
+let editActive = false;
+
+function setEditing(button, text) {
+  if (!input) return;
+
+  document
+    .querySelectorAll(".edit-user-message-btn.editing")
+    .forEach((other) => other.classList.remove("editing"));
+
+  button.classList.add("editing");
+
+  input.value = text;
+  input.dataset.editingMessage = "true";
+
+  input.focus();
+  input.select();
+
+  editActive = true;
+
+  let label = document.getElementById("composerEditingLabel");
+
+  if (!label) {
+    label = document.createElement("div");
+    label.id = "composerEditingLabel";
+    label.style.cssText = `
+      position: absolute;
+      top: -24px;
+      left: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #2563EB;
+      background: #EFF6FF;
+      padding: 2px 8px;
+      border-radius: 4px;
+      pointer-events: none;
+      animation: fadeIn 0.2s ease-out;
+    `;
+    label.textContent = "Editing previous message";
+    
+    const wrapper = input.closest('.input-wrapper') || input.parentElement;
+    if (wrapper) {
+      if (getComputedStyle(wrapper).position === 'static') {
+        wrapper.style.position = 'relative';
+      }
+      wrapper.appendChild(label);
+    }
+  }
+}
+
+function clearEditing() {
+  if (!input) return;
+
+  // input.value = ""; // Do not clear value, it's about to be submitted!
+  input.dataset.editingMessage = "false";
+  delete input.dataset.editingMessage;
+  editActive = false;
+
+  document
+    .querySelectorAll(".edit-user-message-btn.editing")
+    .forEach((button) => button.classList.remove("editing"));
+
+  document.getElementById("composerEditingLabel")?.remove();
+}
+
+document.addEventListener("click", function (event) {
+  const editBtn = event.target.closest(".edit-user-message-btn");
+  if (editBtn) {
+    const bubble = editBtn.closest(".user-bubble");
+    if (bubble) {
+      const clone = bubble.cloneNode(true);
+      clone.querySelector(".user-edit-row")?.remove();
+      clone.innerHTML = clone.innerHTML.replace(/<br\s*[\/]?>/gi, "\n");
+      const text = clone.textContent.trim();
+      setEditing(editBtn, text);
+    }
+  }
+});
+
+/* ============================================================
+   WELCOME SCREEN
+============================================================ */
+(() => {
+  const enterBtn = document.getElementById("enterChatbotButton");
+  const welcomeScreen = document.getElementById("entryWelcomeScreen");
+  if (enterBtn && welcomeScreen) {
+    enterBtn.addEventListener("click", () => {
+      welcomeScreen.style.opacity = '0';
+      welcomeScreen.style.transition = 'opacity 0.3s ease';
+      setTimeout(() => {
+        if (welcomeScreen.parentNode) {
+          welcomeScreen.parentNode.removeChild(welcomeScreen);
+        }
+      }, 300);
+      
+      const input = document.getElementById("promptInput");
+      if (input) input.focus();
+    });
+  }
+})();

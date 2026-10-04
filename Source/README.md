@@ -1,87 +1,122 @@
-# AI Chatbot Assistant (Version 3.8.9)
+# 🤖 AI Chatbot Assistant
 
-A highly polished, secure, and lightning-fast AI Chatbot built with an **Enterprise-Grade C++17 Backend** and a **Vanilla HTML/CSS/JS Frontend**.
+## 📌 Project Overview
+AI Chatbot Assistant is a polished, lightweight web application powered by a **C++17 backend server** and a **Vanilla HTML/CSS/JavaScript frontend**.
 
-This application connects to the **Groq API** using the latest **Llama 3.3 70B** models for blazing-fast text and vision responses. It also features a seamless, intelligent local fallback system that uses a local JSON Knowledge Base when the API is disconnected.
+The application connects to the **Groq API** for AI-powered text and multimodal (vision) responses. It features file-reading capabilities (TXT, DOCX, and Images), conversation context awareness, chat history saving, and a local Knowledge Base fallback.
 
----
+## ✨ Main Features
+- **🤖 Groq API Integration:** Uses `openai/gpt-oss-20b` for text and `qwen/qwen3.8-27b` for vision via the Groq API.
+- **📄 Document Reading:** Extracts text from `.txt` and `.docx` files natively on Windows using PowerShell Zip routines.
+- **👁️ Vision Support:** Analyzes uploaded images (`.png`, `.jpg`, `.webp`, `.gif`, `.bmp`) natively through Groq Vision.
+- **📴 Local Knowledge Base:** Built-in FAQ/Knowledge Base engine that provides fallback answers without internet access.
+- **💬 Conversation History:** Automatically saves chats in JSON format (`chat_history.json`).
+- **🔄 Response Refresh/Regenerate:** Request a new answer or update an old one while preserving file context in memory.
+- **🔐 Admin Dashboard:** Secure login for modifying Knowledge Base entries and exporting history.
+- **🎨 Custom UI:** Clean, responsive HTML/CSS interface with markdown rendering and code syntax highlighting.
 
-## 👶 New to Programming? Start Here! (Basic)
-**What does this project actually do?**
-Think of this project as your own personal version of ChatGPT, hosted entirely on your computer!
-- The **Frontend** (HTML/CSS/JS) is the beautiful webpage where you type your messages.
-- The **Backend** (C++) is the "brain" running invisibly on your computer. When you send a message, the webpage sends it to the C++ brain. The C++ brain then securely forwards it to Groq's supercomputers, gets the AI's answer, and sends it back to your webpage!
-- If you ask a question it already knows, the C++ brain reads from local `.json` files on your computer to answer you instantly offline.
+## 🛠️ Technology & Languages Used
+- **Backend:** C++17
+- **Frontend:** HTML5, CSS3, Vanilla JavaScript
+- **Build Environment:** MSYS2 / MinGW-w64 (Windows)
+- **Scripting:** PowerShell (for DOCX extraction)
 
----
+## 📚 Libraries & Dependencies
+- `cpp-httplib` (`httplib.h`) - HTTP server and REST API
+- `nlohmann/json` (`json.hpp`) - JSON parsing and generation
+- `libcurl` - HTTPS communication with Groq
+- `marked.js` - Markdown rendering in UI
+- `highlight.js` - Code syntax highlighting
+- `DOMPurify` - HTML sanitization in UI
 
-## 🚀 What's New in Version 3.8.9? (Advanced)
-This version underwent a massive architectural overhaul to achieve enterprise-level security and performance:
-1. **JSON Data Migration:** All legacy `.txt` flat files were ripped out and replaced with strict `nlohmann::json` serialization. Data corruption from delimiter parsing is now mathematically impossible.
-2. **Environment Isolation:** Secrets are no longer hardcoded or saved in plain text. `GROQ_API_KEY`, `ADMIN_PASSWORD`, and `PORT` are now strictly isolated in a `.env` file that is protected by `.gitignore`.
-3. **Cryptographic Sessions:** Admin tokens are now generated using `std::random_device`, tapping directly into the OS-level entropy pool (CSPRNG), making admin session hijacking impossible.
-4. **Offline UI (Vendor Mapping):** CDN dependencies were removed. The app now serves `marked.js`, `highlight.js`, and `DOMPurify` locally from a `/vendor` directory.
-5. **Thread Pool Protection:** The cURL `callGroq` logic now enforces strict 30-second `CURLOPT_TIMEOUT` limits to prevent thread exhaustion if the Groq API lags.
-6. **Llama 3.3 Upgrade:** Successfully migrated off the decommissioned Llama 3.1 architecture to the brand new `llama-3.3-70b-versatile` Groq model.
-7. **Single-Tap UX:** Improved frontend accessibility by changing the "New Chat" requirement from a double-click to an instant single-click.
+## 📁 Project Structure
+```text
+ChatBot/Source/
+├── chatbot.cpp           # Main C++ backend source
+├── httplib.h             # cpp-httplib HTTP library
+├── json.hpp              # nlohmann/json library
+├── index.html            # Main frontend page
+├── script.js             # Frontend JavaScript
+├── style.css             # Frontend stylesheet
+├── chat_history.json     # Saved conversation history
+├── knowledge.json        # Local Knowledge Base answers
+├── .env                  # Environment configuration (API keys, ports)
+├── run_updated.bat       # Helper script to launch the app
+└── vendor/               # Third-party frontend assets (marked, highlight.js, etc.)
+```
 
----
+## ⚙️ How the Chatbot Works
+1. The user opens the web interface in a browser and sends a message (or uploads a file).
+2. The frontend sends the request to the local C++ backend via REST API (`/api/chat` or `/api/file-read`).
+3. The C++ backend first checks the local **Knowledge Base** and keyword rules. If a match is found (with a high overlap score), it returns the predefined answer immediately.
+4. If no local match is found, the backend forwards the prompt (along with extracted file text, base64 images, and previous conversation context) to the **Groq API**.
+5. The AI response is received, saved to `chat_history.json`, and returned to the frontend.
+6. The frontend renders the Markdown response securely.
 
-## 🛠️ Complete Tech Stack
+## 🚀 Setup & MSYS2 Installation Requirements
+To compile this project on Windows, you must use **MSYS2**:
+1. Download and install [MSYS2](https://www.msys2.org/).
+2. Open the **MSYS2 UCRT64** terminal.
+3. Install the required toolchain and libraries by running:
+```bash
+pacman -S mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-curl
+```
 
-### Backend (Server)
-- **Language:** C++17 (compiled via MinGW-w64 / MSYS2 on Windows).
-- **cpp-httplib (`httplib.h`):** Lightweight, multi-threaded HTTP web server.
-- **nlohmann/json (`json.hpp`):** Robust JSON parsing for API payloads and database serialization.
-- **libcurl:** Makes outgoing HTTPS POST requests to the Groq API (with `CURLOPT_SSL_VERIFYPEER` safely tuned for local Windows development).
+## 🔑 Configuration / API Key Instructions
+Create or edit the `.env` file in the `Source/` folder to add your Groq API key:
+```env
+GROQ_API_KEY=gsk_your_api_key_here
+ADMIN_PASSWORD=admin
+PORT=8080
+```
+> **Warning:** Never commit your real API key to version control.
 
-### Frontend (User Interface)
-- **HTML5 & CSS3:** Custom-built styling using CSS Variables for theming (Light/Dark mode) and Flexbox for responsive layouts.
-- **Vanilla JavaScript (`script.js`):** Handles DOM manipulation and async API fetching without heavy frameworks.
-- **marked.js & highlight.js:** Converts Markdown to HTML and applies syntax highlighting.
-- **DOMPurify:** Strictly sanitizes all incoming HTML strings before DOM injection to eliminate XSS.
-
----
-
-## 🗄️ Database Architecture
-
-The application handles its own lightweight persistence using strictly formatted JSON files:
-1. **`.env`**: Stores the dynamic Port, Groq API Key, and Admin Password.
-2. **`chat_history.json`**: Serialized storage of all user conversations.
-3. **`knowledge.json`**: Admin-created Offline Fallback Q&A database utilizing full-word token overlap scoring.
-
----
-
-## 📡 REST API Reference
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| **POST** | `/api/chat` | Receives messages, fetches from Groq, or falls back to local JSON cache. |
-| **GET** | `/api/history` | Returns all saved conversation history from `chat_history.json`. |
-| **DELETE**| `/api/history` | Deletes a specific conversation or clears all history. |
-| **POST** | `/api/admin/login` | Authenticates admins using CSPRNG secure tokens. |
-| **POST** | `/api/knowledge/add` | (Admin) Adds a new Q&A rule to the offline database. |
-
----
-
-## ⚙️ How to Compile & Run
-
-### 1. Compile the Code (MSYS2 / Git Bash)
-Make sure you have `curl` installed in your MSYS2 environment. Open your terminal, navigate to the `Source` folder, and run:
+## 🔨 Compilation Command
+In the MSYS2 UCRT64 terminal, navigate to the `Source` folder and compile the backend:
 ```bash
 g++ -std=c++17 -O2 -I. chatbot.cpp -o chatbot_updated.exe -static-libgcc -static-libstdc++ -lcurl -lws2_32 -lwinpthread
 ```
 
-### 2. Configure your Environment
-Ensure you have a `.env` file in the root folder with:
-```env
-PORT=8080
-GROQ_API_KEY=gsk_your_api_key_here
-ADMIN_PASSWORD=admin@2026
-```
-
-### 3. Launch the Server
+## ▶️ Run Command
+Once compiled, you can run the executable from the terminal:
 ```bash
 ./chatbot_updated.exe
 ```
-Open `http://127.0.0.1:8080` in your browser!
+
+## ⚡ Complete Build-and-Run Command
+You can compile and run the project in a single command. Open the **MSYS2 UCRT64 terminal** and run exactly:
+
+```bash
+cd "/e/Creative Techno College/Technocrats/Projects/Project List/ChatBot/Source" && \
+g++ -std=c++17 -O2 -I. chatbot.cpp -o chatbot_updated.exe \
+    -static-libgcc -static-libstdc++ -lcurl -lws2_32 -lwinpthread && \
+./chatbot_updated.exe
+```
+After it starts, open `http://127.0.0.1:8080` in your web browser.
+
+## 📖 Usage Instructions
+- **Normal Chat:** Type your question and press Enter. The bot will use conversation context to answer.
+- **Upload File:** Click the attachment icon to upload `.txt`, `.docx`, or supported image files.
+- **Refresh Response:** Click the refresh icon under a bot's message to regenerate the answer.
+- **Knowledge Base:** Click "Knowledge Base" in the sidebar, enter the admin password (default: `admin`), and add custom FAQ entries.
+- **Export History:** In the sidebar, select old conversations and click "Export as TXT" to download them.
+
+## ⚠️ Important Notes
+- DOCX extraction relies on a local PowerShell script invoked by the C++ backend. It works only on Windows environments.
+- The C++ backend holds uploaded image data in memory temporarily for "Refresh" requests. Large or numerous images might increase RAM usage.
+
+## 🐛 Troubleshooting & Common Errors
+- **`curl/curl.h: No such file or directory`**: You forgot to install libcurl in MSYS2. Run `pacman -S mingw-w64-ucrt-x86_64-curl`.
+- **`GROQ_API_KEY environment variable is not set`**: Ensure `.env` is in the same directory as `chatbot_updated.exe` and contains your API key.
+- **Cannot bind to port 8080**: Another program is using port 8080. Open `.env`, change `PORT=8081`, and restart the app.
+- **DOCX Extraction Fails**: Ensure you are running on Windows and PowerShell is accessible from your system PATH.
+
+## 🚧 Current Limitations
+- External AI requires a stable internet connection.
+- Max file size for uploads is hardcoded to 15MB.
+- DOCX reading is Windows-only.
+
+## 🔮 Future Improvements
+- Add native DOCX/PDF parsing via C++ libraries instead of relying on PowerShell.
+- Allow swapping AI models dynamically from the frontend UI.
+- Implement database support (e.g., SQLite) for history instead of flat JSON files.
