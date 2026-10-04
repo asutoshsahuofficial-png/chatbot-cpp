@@ -1,8 +1,8 @@
-# 🤖 AI Chatbot Assistant — Version 3.8.9
+# 🤖 AI Chatbot Assistant — Version 4.0.0
 
 A polished, lightweight AI Chatbot built with a **C++17 backend server** and a **Vanilla HTML/CSS/JavaScript frontend**.
 
-The application connects to the **Groq API** for AI-powered text and vision responses and provides a local Knowledge Base fallback when the external API is unavailable.
+The application connects to the **Groq API** for AI-powered text and vision responses, and provides a local Knowledge Base fallback when the external API is unavailable.
 
 ---
 
@@ -14,9 +14,9 @@ AI Chatbot Assistant is a locally hosted chatbot application designed to run on 
 
 1. The user interacts with the web interface.
 2. The frontend sends requests to the local C++ backend.
-3. The C++ backend processes the request.
-4. When available, the backend communicates with the Groq API.
-5. The AI response is returned to the frontend.
+3. The C++ backend processes the request and any attached files.
+4. When available, the backend communicates with the Groq API (including Vision and Document extraction).
+5. The AI response is returned to the frontend and saved to the local conversation history.
 6. The local Knowledge Base can be used as a fallback when the external API is unavailable.
 
 ```text
@@ -51,11 +51,12 @@ AI Chatbot Assistant is a locally hosted chatbot application designed to run on 
 # ✨ Features
 
 - 🤖 AI-powered chatbot
-- ⚡ Groq API integration
-- 👁️ AI text and vision response support
+- ⚡ Groq API integration (`openai/gpt-oss-20b`)
+- 👁️ AI multimodal/vision response support (`qwen/qwen3.8-27b`)
+- 📄 Document text extraction (TXT, DOCX) via native Windows PowerShell
 - 📴 Local Knowledge Base fallback
-- 💬 Conversation history
-- 📌 Saved/pinned AI answers
+- 💬 Conversation history (stored in JSON)
+- 🔄 Response Refresh/Regenerate with memory preservation
 - 🔑 API key management
 - 🛡️ API key masking
 - 🔐 Administrative authentication
@@ -82,6 +83,7 @@ AI Chatbot Assistant is a locally hosted chatbot application designed to run on 
 | **cpp-httplib** | HTTP server and REST API |
 | **nlohmann/json** | JSON parsing and generation |
 | **libcurl** | HTTPS communication with Groq |
+| **PowerShell** | Internal script execution for DOCX parsing |
 
 ## Frontend
 
@@ -92,6 +94,7 @@ AI Chatbot Assistant is a locally hosted chatbot application designed to run on 
 | **Vanilla JavaScript** | Frontend logic and API requests |
 | **marked.js v14** | Markdown rendering |
 | **highlight.js v11.8.0** | Code syntax highlighting |
+| **DOMPurify** | Safe HTML sanitization |
 
 ---
 
@@ -115,13 +118,10 @@ ChatBot/
 └── Source/
     │
     ├── vendor/
-    │   └── Third-party/local dependencies
+    │   └── Third-party/local dependencies (marked, highlight.js)
     │
     ├── .env
-    │   └── Demo environment configuration
-    │
-    ├── build_updated.bat
-    │   └── Build/compile helper script
+    │   └── Environment configuration (API Keys, Port)
     │
     ├── run_updated.bat
     │   └── Run/launch helper script
@@ -148,7 +148,7 @@ ChatBot/
     │   └── Frontend stylesheet
     │
     ├── chat_history.json
-    │   └── Local conversation history
+    │   └── Local conversation history database
     │
     ├── knowledge.json
     │   └── Local Knowledge Base
@@ -164,49 +164,31 @@ ChatBot/
 # 🗂️ Important Files
 
 ### `chatbot.cpp`
-
-Main C++ backend source file. It contains the server/application logic and API handling.
+Main C++ backend source file. It contains the server/application logic, file processing, and API handling.
 
 ### `index.html`
-
 Main web interface loaded by the browser.
 
 ### `style.css`
-
 Contains the visual styling and responsive frontend layout.
 
 ### `script.js`
-
 Handles frontend interactions, DOM operations, and communication with the C++ backend.
 
 ### `knowledge.json`
-
 Local Knowledge Base used by the application's offline/fallback functionality.
 
 ### `chat_history.json`
-
-Local conversation history data.
+Local conversation history data containing previous context, answers, and references.
 
 ### `.env`
+Environment configuration file specifying port, admin password, and API Keys.
+**Never put real API keys, passwords, or private tokens into a public repository.**
 
-Environment configuration file.
-
-**The repository `.env` is intended for demo/placeholder configuration only. Never put real API keys, passwords, or private tokens into a public repository.**
-
-### `httplib.h`
-
-Single-header HTTP server/library used by the C++ backend.
-
-### `json.hpp`
-
-Single-header JSON library used for JSON processing.
-
-### `build_updated.bat`
-
-Windows batch script intended to simplify the build process.
+### `httplib.h` & `json.hpp`
+Single-header libraries used by the C++ backend for HTTP server endpoints and JSON processing.
 
 ### `run_updated.bat`
-
 Windows batch script intended to simplify starting the application.
 
 ---
@@ -218,13 +200,16 @@ The C++ backend exposes REST-style endpoints for communication with the frontend
 | Method | Endpoint | Purpose |
 |---|---|---|
 | `POST` | `/api/chat` | Sends a user message and obtains an AI/local response |
-| `GET` | `/api/history` | Retrieves conversation history |
-| `DELETE` | `/api/history` | Deletes conversation history |
-| `POST` | `/api/saved` | Saves/pins an AI answer |
-| `GET` | `/api/apikey` | Retrieves a masked API-key representation |
-| `POST` | `/api/apikey` | Stores an API key locally |
+| `POST` | `/api/file-read` | Processes text, documents (DOCX), and images (Vision) |
+| `POST` | `/api/refresh` | Regenerates a previous response with original file context |
+| `GET`  | `/api/history` | Retrieves conversation history |
+| `POST` | `/api/history/clear` | Clears all conversation history |
+| `GET`  | `/api/history/export`| Retrieves raw history payload |
 | `POST` | `/api/admin/login` | Handles administrator authentication |
+| `GET`  | `/api/knowledge` | Fetches local Knowledge Base entries |
 | `POST` | `/api/knowledge/add` | Adds a Q&A entry to the Knowledge Base |
+| `POST` | `/api/knowledge/update` | Edits an existing Knowledge Base entry |
+| `POST` | `/api/knowledge/delete` | Removes a Knowledge Base entry |
 
 ---
 
@@ -232,58 +217,35 @@ The C++ backend exposes REST-style endpoints for communication with the frontend
 
 The project includes several security-oriented mechanisms.
 
-## API Key Masking
-
-API-key information returned to the frontend is masked rather than exposing the complete key.
-
-Example:
-
-```text
-gsk_********************
-```
+## API Key Safety
+Do not commit real credentials. For public repositories, use placeholder/demo values in `.env` or provide a separate `.env.example` file. Your `.env` key is handled exclusively server-side in the backend process.
 
 ## XSS Protection
-
-Frontend content is processed through escaping/sanitization logic before being rendered.
-
-This is intended to reduce Cross-Site Scripting (XSS) risks.
+Frontend content is processed through DOMPurify and strict escaping logic before being rendered via marked.js to mitigate Cross-Site Scripting (XSS) risks.
 
 ## Administrative Rate Limiting
-
 Administrative endpoints use memory-based IP lockouts/rate limiting to help protect against repeated unauthorized requests.
-
-## Environment File Safety
-
-Do not commit real credentials.
-
-For public repositories, use placeholder/demo values in `.env` or provide a separate `.env.example` file.
 
 ---
 
 # ⚙️ Requirements
 
 ## Operating System
-
-- Windows
+- Windows (Required for native DOCX parsing)
 
 ## Development Environment
-
 - MSYS2
 - MSYS2 UCRT64
 - MinGW-w64
-- GCC
-- C++17
+- GCC (C++17)
 
 ## Required Libraries
-
 - cpp-httplib
 - nlohmann/json
 - libcurl
 
 ## Browser
-
 Any modern browser such as:
-
 - Google Chrome
 - Microsoft Edge
 - Mozilla Firefox
@@ -293,80 +255,62 @@ Any modern browser such as:
 # 🚀 Installation & Setup
 
 ## 1. Install MSYS2
-
-Install MSYS2 and open:
-
+Install [MSYS2](https://www.msys2.org/) and open:
 ```text
 MSYS2 UCRT64
 ```
 
-Install the C++ compiler:
-
+Install the C++ compiler and cURL:
 ```bash
-pacman -S mingw-w64-ucrt-x86_64-gcc
-```
-
-Install cURL:
-
-```bash
-pacman -S mingw-w64-ucrt-x86_64-curl
+pacman -S mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-curl
 ```
 
 ---
 
 # 🔨 Build the Project
 
-Navigate to the `Source` directory.
-
-For the project location used during development:
+You can compile the backend natively via MSYS2. Open the **MSYS2 UCRT64** terminal and navigate to the `Source` directory:
 
 ```bash
-cd "e:/ChatBot/Source"
+cd "/e/Creative Techno College/Technocrats/Projects/Project List/ChatBot/Source"
 ```
 
-Compile the backend:
+Compile the backend executable with the required libraries:
 
 ```bash
-g++ -std=c++17 -O2 -I. chatbot.cpp -o chatbot.exe -static-libgcc -static-libstdc++ -lcurl -lws2_32 -lwinpthread
+g++ -std=c++17 -O2 -I. chatbot.cpp -o chatbot_updated.exe -static-libgcc -static-libstdc++ -lcurl -lws2_32 -lwinpthread
 ```
 
-After a successful compilation, the executable will be generated.
+After a successful compilation, `chatbot_updated.exe` will be generated.
 
 ---
 
 # ▶️ Run the Application
 
 You can start the compiled backend using:
-
 ```bash
-./chatbot.exe
+./chatbot_updated.exe
 ```
 
 Or use the included Windows batch launcher:
-
 ```text
 run_updated.bat
 ```
 
-Then open:
-
-```text
-http://127.0.0.1:8080
-```
-
-in a web browser.
+Then open `http://127.0.0.1:8080` in a web browser.
 
 ---
 
-# 🏗️ Build Script
+# ⚡ Complete Build-and-Run Command
 
-The project also includes:
+You can compile and run the project in a single command. Open the **MSYS2 UCRT64 terminal** and run exactly:
 
-```text
-Source/build_updated.bat
+```bash
+cd "/e/Creative Techno College/Technocrats/Projects/Project List/ChatBot/Source" && \
+g++ -std=c++17 -O2 -I. chatbot.cpp -o chatbot_updated.exe \
+    -static-libgcc -static-libstdc++ -lcurl -lws2_32 -lwinpthread && \
+./chatbot_updated.exe
 ```
-
-This can be used as the project's Windows build helper.
 
 ---
 
@@ -411,101 +355,22 @@ This can be used as the project's Windows build helper.
 # 🧠 Local Knowledge Base
 
 The project includes:
-
 ```text
 Source/knowledge.json
 ```
-
 This file provides locally stored knowledge/Q&A data that can support fallback responses when the external AI service is unavailable.
 
-The administrator API can also be used to add Knowledge Base entries:
-
-```text
-POST /api/knowledge/add
-```
+The administrator API can also be used to add, edit, or delete Knowledge Base entries from the web interface.
 
 ---
 
 # 💬 Conversation History
 
-Conversation history is stored locally in:
-
+Conversation history is stored locally in JSON format to preserve context, metadata, and references:
 ```text
 Source/chat_history.json
 ```
-
-The backend exposes:
-
-```text
-GET    /api/history
-DELETE /api/history
-```
-
-for history management.
-
----
-
-# 🔑 API Configuration
-
-The application uses the Groq API for AI functionality.
-
-The project contains:
-
-```text
-Source/.env
-```
-
-This repository version is intended to contain **demo/placeholder configuration only**.
-
-### Never publish:
-
-```text
-Real API keys
-Passwords
-Access tokens
-Private credentials
-```
-
-If you use a real API key locally, keep it out of Git and GitHub.
-
----
-
-# 🧪 Development
-
-Main backend:
-
-```text
-Source/chatbot.cpp
-```
-
-Frontend:
-
-```text
-Source/index.html
-Source/style.css
-Source/script.js
-```
-
-Libraries:
-
-```text
-Source/httplib.h
-Source/json.hpp
-```
-
-Data:
-
-```text
-Source/chat_history.json
-Source/knowledge.json
-```
-
-Scripts:
-
-```text
-Source/build_updated.bat
-Source/run_updated.bat
-```
+The backend manages history automatically and uses it to understand conversational context. The UI allows you to export this history as TXT files.
 
 ---
 
@@ -514,7 +379,7 @@ Source/run_updated.bat
 | Item | Details |
 |---|---|
 | **Project** | AI Chatbot Assistant |
-| **Version** | 3.8.9 |
+| **Version** | 4.0.0 |
 | **Backend** | C++17 |
 | **Frontend** | HTML5 / CSS3 / Vanilla JavaScript |
 | **AI Provider** | Groq API |
@@ -529,13 +394,12 @@ Source/run_updated.bat
 # 🔮 Future Improvements
 
 Potential improvements include:
-
 - Improved local Knowledge Base
 - Additional AI provider support
 - Better conversation management
 - Enhanced authentication
-- Database support
-- Cross-platform support
+- Database support (e.g. SQLite)
+- Cross-platform support for DOCX/file processing
 - Additional AI capabilities
 - Improved configuration management
 - Performance improvements
@@ -543,7 +407,7 @@ Potential improvements include:
 
 ---
 
-# 👨💻 Author
+# 👨‍💻 Author
 
 **Asutosh Sahu**
 
@@ -555,7 +419,6 @@ Creative Techno College
 # 🎓 Project Purpose
 
 This project demonstrates practical development concepts including:
-
 - C++17 programming
 - HTTP server development
 - REST API design
@@ -564,7 +427,7 @@ This project demonstrates practical development concepts including:
 - Frontend web development
 - JavaScript and DOM manipulation
 - Local data management
-- AI API integration
+- AI API integration (Text and Multimodal Vision)
 - Offline/fallback application design
 - Windows application compilation
 - Basic application security
@@ -581,9 +444,9 @@ Please refer to the repository's documentation and notices for applicable usage 
 
 # ⭐ Summary
 
-**AI Chatbot Assistant v3.8.9** combines a C++17 backend with a Vanilla HTML/CSS/JavaScript frontend to provide a locally hosted AI chatbot.
+**AI Chatbot Assistant v4.0.0** combines a C++17 backend with a Vanilla HTML/CSS/JavaScript frontend to provide a locally hosted AI chatbot.
 
-The application uses the Groq API for AI-powered responses and includes a local Knowledge Base fallback, conversation history, API management, administrative endpoints, and a Windows executable workflow.
+The application uses the Groq API for AI-powered responses and includes file/document processing, vision features, a local Knowledge Base fallback, JSON conversation history, administrative endpoints, and a simple Windows executable workflow.
 
 ```text
 C++17 Backend
