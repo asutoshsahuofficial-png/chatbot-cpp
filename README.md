@@ -269,6 +269,16 @@ Any modern browser such as:
 
 ---
 
+## ⚙️ Setup Instructions
+
+To run this project, you need to configure your environment variables:
+
+1. Go to the `Source` folder.
+2. Find the file named `.env.example` and rename it to `.env` (or make a copy named `.env`).
+3. Open the new `.env` file in a text editor.
+4. Replace `your_groq_api_key_here` with your actual Groq API Key.
+5. Replace `your_secure_password` with the password you want to use for Admin mode.
+
 # 🚀 Installation & Setup
 
 ## 1. Install MSYS2
