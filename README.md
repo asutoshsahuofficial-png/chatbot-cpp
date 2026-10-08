@@ -274,10 +274,12 @@ Any modern browser such as:
 To run this project, you need to configure your environment variables:
 
 1. Go to the `Source` folder.
-2. Find the file named `.env.example` and rename it to `.env` (or make a copy named `.env`).
-3. Open the new `.env` file in a text editor.
-4. Replace `your_groq_api_key_here` with your actual Groq API Key.
-5. Replace `your_secure_password` with the password you want to use for Admin mode.
+2. Create a new file and name it exactly `.env` (make sure it doesn't have a .txt extension at the end).
+3. Open the `.env` file in a text editor and paste the following code inside it:
+
+   ```text
+   GROQ_API_KEY=your_groq_api_key_here
+   ADMIN_PASSWORD=your_secure_password
 
 # 🚀 Installation & Setup
 
