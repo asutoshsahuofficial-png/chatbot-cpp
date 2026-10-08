@@ -1,0 +1,719 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Chatbot AI Assistant — Ask questions, explore ideas, and get fast answers powered by Groq AI. Built with C++, JavaScript, HTML, and CSS."
+    />
+    <meta name="theme-color" content="#1a1a2e" />
+
+    <title>Chatbot AI</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js" defer></script>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✦</text></svg>">
+    <link rel="stylesheet" href="style.css?v=152" />
+
+    <!-- Small UI refinements -->
+
+    <!-- ======================================================
+         ADDITIVE 10/10 VISUAL ENHANCEMENTS
+         Original code above is intentionally preserved.
+         ====================================================== -->
+
+    <!-- ======================================================
+         SAME-INDEX WELCOME SCREEN
+         Original HTML is preserved. This is an additive overlay.
+         ====================================================== -->
+  </head>
+
+  <body>
+    <!-- ======================================================
+         SAME-INDEX WELCOME SCREEN
+         ====================================================== -->
+    <div id="entryWelcomeScreen" aria-label="Welcome screen">
+      <div class="welcome-orb orb-a" aria-hidden="true"></div>
+      <div class="welcome-orb orb-b" aria-hidden="true"></div>
+      <div class="welcome-orb orb-c" aria-hidden="true"></div>
+
+      <section class="welcome-panel" aria-labelledby="welcomeTitle">
+        <div class="welcome-logo" aria-hidden="true">✦</div>
+
+        <div class="welcome-kicker"><i data-lucide="zap" style="width: 1em; height: 1em; vertical-align: middle;"></i> AI-POWERED CHAT ASSISTANT</div>
+
+        <h1 id="welcomeTitle">
+          Your AI Assistant,
+          <span>Ready to Chat.</span>
+        </h1>
+
+        <p class="welcome-copy">
+          Ask questions, explore ideas, and get fast, helpful answers in one
+          simple conversation.
+        </p>
+
+        <button id="enterChatbotButton" class="welcome-enter" type="button">
+          Start Chatting →
+        </button>
+
+        <div class="welcome-meta">
+          <span><i class="meta-dot" aria-hidden="true"></i> Online</span>
+          <span><i data-lucide="zap" style="width: 1em; height: 1em; vertical-align: middle;"></i> Powered by Groq AI</span>
+          <span>🔒 Simple &amp; Private</span>
+        </div>
+
+      </section>
+    </div>
+
+    <!-- ======================================================
+         APP SHELL
+         ====================================================== -->
+
+    <div class="app-shell">
+      <!-- ====================================================
+           SIDEBAR
+           ==================================================== -->
+
+      <aside class="sidebar">
+        <!-- ==================================================
+             BRAND
+             ================================================== -->
+
+        <div class="brand-section"><div class="brand-avatar"><i data-lucide="bot" style="width: 28px; height: 28px;"></i></div><div><div class="brand-mark">Chatbot</div><div class="brand-subtitle">Your Smart Assistant</div></div></div>
+
+        <!-- ==================================================
+             NAVIGATION
+             ================================================== -->
+
+        <nav class="nav">
+          <button class="nav-item active" data-section="chat-section" type="button">
+            <i data-lucide="home" class="nav-icon" aria-hidden="true"></i>
+            <span> Home / Chat </span>
+          </button>
+          <button class="nav-item" data-section="history-section" type="button">
+            <i data-lucide="message-square-dashed" class="nav-icon" aria-hidden="true"></i>
+            <span> Conversation History </span>
+          </button>
+          <button class="nav-item" data-section="knowledge-section" type="button">
+            <i data-lucide="book-text" class="nav-icon" aria-hidden="true"></i>
+            <span> Knowledge Base </span>
+          </button>
+          
+          <button class="nav-item" data-section="about-section" type="button">
+            <i data-lucide="info" class="nav-icon" aria-hidden="true"></i>
+            <span> About Us </span>
+          </button>
+          <button class="nav-item" id="globalThemeToggleBtn" type="button">
+            <i data-lucide="moon" class="nav-icon" aria-hidden="true"></i>
+            <span> Dark Mode </span>
+          </button>
+        </nav>
+
+        <!-- ==================================================
+             SIDEBAR FOOTER
+             ================================================== -->
+
+        <div class="sidebar-footer">
+          <div class="sidebar-footer-title"><i data-lucide="lightbulb" style="color: #FBBF24; width: 18px; height: 18px;"></i> Ask &middot; Learn &middot; Chat</div>
+          <div class="sidebar-footer-sub">A smarter way to get answers</div>
+        </div>
+      </aside>
+
+      <!-- ====================================================
+           MAIN
+           ==================================================== -->
+
+      <main class="main">
+
+        <!-- ==================================================
+             CHAT SECTION
+             ================================================== -->
+
+        <section class="content-section active-section" id="chat-section">
+          <header class="topbar" >
+            <div class="topbar-title">
+              <div class="topbar-avatar"><i data-lucide="bot"></i></div>
+              <div class="topbar-text">
+                <h1>Chat with AI Assistant</h1>
+                <p>Ask anything! I'll try to help you with the best possible answer.</p>
+              </div>
+            </div>
+            <div class="topbar-actions">
+              <button class="topbar-btn danger" id="clearChatBtnTop" title="Clear current chat"><i data-lucide="trash-2"></i></button>
+              <button class="topbar-btn danger" id="exitBtn" title="Exit Chatbot"><i data-lucide="log-out"></i></button>
+            </div>
+          </header>
+          <!-- =================================================
+               CHAT WINDOW
+               ================================================= -->
+
+          <div class="chat" id="chat">
+            <!-- ================= EMPTY CHAT WELCOME ================= -->
+            <div class="message-row assistant-row" style="margin-top: 20px;">
+              <div class="assistant-avatar"><i data-lucide="bot"></i></div>
+              <div class="bubble assistant-bubble">
+                <div class="assistant-content">Hello! 👋<br><br>I'm your chatbot assistant. How can I help you today?</div>
+                <div class="message-meta timestamp"><span>10:24 AM</span></div>
+                <div class="reaction-actions">
+                  <button class="copy-btn" title="Copy"><i data-lucide="copy" style="width: 16px; height: 16px;"></i></button>
+                  
+                </div>
+              </div>
+            </div>
+          </div>
+            <!-- =================================================
+                 COMPOSER
+               ================================================= -->
+
+          <section class="composer">
+            <!-- ================= QUICK ACTIONS ================= -->
+
+            <div style="margin: 0 32px 6px 32px; font-size: 0.85rem; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px;"><i data-lucide="lightbulb" style="color: #FBBF24; width: 16px; height: 16px;"></i> Try these questions:</div>
+            <div class="quick-actions">
+              <button class="quick-action" data-prompt="What is C++?" type="button">What is C++?</button>
+              <button class="quick-action" data-prompt="What is HTML?" type="button">What is HTML?</button>
+              <button class="quick-action" data-prompt="How to add new Q&A?" type="button">How to add new Q&A?</button>
+              <button class="quick-action" data-prompt="Show my history" type="button">Show my history</button>
+              <button class="quick-action" data-prompt="Goodbye" type="button">Goodbye</button>
+            </div>
+
+            <!-- ================= INPUT BAR ================= -->
+
+            <form class="input-bar" id="promptForm">
+              <!-- Attach Button (Injected directly to guarantee visibility) -->
+              <button type="button" class="chatbot-attach-btn" id="hardcodedAttachBtn" title="Attach a TXT, DOCX, or image file" aria-label="Attach a file">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-paperclip"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+              </button>
+              
+              <!-- Selected File Pill -->
+              <div class="chatbot-file-pill" id="hardcodedFilePill" aria-live="polite">
+                <span class="chatbot-file-type">FILE</span>
+                <span class="chatbot-file-name"></span>
+                <button type="button" class="chatbot-file-remove" aria-label="Remove attached file" title="Remove file">×</button>
+              </div>
+              
+              <input type="file" id="chatbotFileInput" hidden accept=".txt,.docx,.png,.jpg,.jpeg,.webp,.gif,.bmp,text/plain,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/png,image/jpeg,image/webp,image/gif,image/bmp">
+              <input
+                id="promptInput"
+                type="text"
+                placeholder="Type your message here..."
+                autocomplete="off"
+              />
+
+              <button type="submit" class="tool-btn" aria-label="Send">
+                <i data-lucide="send" style="width: 20px; height: 20px;"></i>
+              </button>
+            </form>
+          </section>
+
+          <!-- =================================================
+               MAIN FOOTER
+               ================================================= -->
+
+          <footer class="main-footer">
+            <span> Powered by Groq AI </span>
+
+            <span class="footer-divider"> | </span>
+
+            <span> Fast • Simple • Helpful </span>
+          </footer>
+        </section>
+
+        <!-- ==================================================
+             RECENT CONVERSATIONS
+             ================================================== -->
+
+                        <section class="content-section" id="history-section">
+          <div class="page-content" style="display: flex; flex-direction: column; gap: 24px; height: 100%; box-sizing: border-box;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <div class="history-header-icon" style="background: var(--surface, var(--surface)); width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px var(--primary-light);">
+                  <i data-lucide="clock" style="color: var(--primary); width: 24px; height: 24px;"></i>
+                </div>
+                <div>
+                  <h2 style="margin: 0; font-size: 24px; color: var(--text, var(--text));">Conversation History</h2>
+                  <p style="margin: 4px 0 0 0; color: var(--text-light, var(--text-light)); font-size: 14px;">View and manage your previous conversations.</p>
+                </div>
+              </div>
+              <div style="display: flex; gap: 12px;">
+                <button id="exportHistoryButtonUI" type="button" style="background: var(--surface); color: var(--text); border: 1px solid var(--border); padding: 12px 24px; border-radius: 12px; font-weight: 600; display: flex; align-items: center; gap: 8px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                  <i data-lucide="download" style="width: 18px; height: 18px;"></i> Export
+                </button>
+                <button id="clearHistoryButton" class="clear-all-history-btn" type="button" style="background: var(--danger); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: 600; display: flex; align-items: center; gap: 8px; cursor: pointer; box-shadow: 0 4px 12px rgba(239,68,68,0.25);">
+                  <i data-lucide="trash-2" style="width: 18px; height: 18px;"></i> Clear All History
+                </button>
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 350px 1fr; gap: 24px; align-items: start; flex: 1; min-height: 0;">
+              <!-- Left Column: Search & List -->
+              <div style="display: flex; flex-direction: column; gap: 16px; height: 100%;">
+                <div style="position: relative;">
+                  <i data-lucide="search" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-light, var(--text-muted)); width: 18px; height: 18px;"></i>
+                  <input type="text" id="historySearchInput" placeholder="Search conversations..." style="width: 100%; padding: 14px 16px 14px 44px; border-radius: 12px; border: 1px solid var(--border, var(--border)); background: var(--surface, var(--surface)); color: var(--text, var(--text)); font-size: 14px; outline: none;">
+                </div>
+                
+                <div id="historyList" class="history-list" style="display: flex; flex-direction: column; gap: 12px; flex: 1; overflow-y: auto; padding-right: 4px;">
+                  <!-- JS will render items here -->
+                </div>
+              </div>
+
+              <!-- Right Column: Preview Pane -->
+              <div id="historyPreviewPane" style="background: var(--surface, var(--surface)); border-radius: 20px; border: 1px solid var(--border, var(--border)); box-shadow: 0 4px 12px rgba(0,0,0,0.02); display: flex; flex-direction: column; height: 100%; overflow: hidden; position: relative;">
+                
+                <!-- Empty State -->
+                <div id="historyPreviewEmpty" style="flex: 1; display: flex; align-items: center; justify-content: center; color: var(--text-light, var(--text-muted)); font-size: 15px;">
+                  Select a conversation to preview
+                </div>
+
+                <!-- Content State (hidden by default) -->
+                <div id="historyPreviewContent" style="display: none; flex-direction: column; height: 100%;">
+                  <div style="padding: 24px; border-bottom: 1px solid var(--border, var(--surface-soft)); display: flex; align-items: center; gap: 16px;">
+                    <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--primary-light); display: flex; align-items: center; justify-content: center;">
+                      <i data-lucide="message-square-dashed" style="color: var(--primary); width: 20px; height: 20px;"></i>
+                    </div>
+                    <div>
+                      <h3 id="historyPreviewTitle" style="margin: 0; font-size: 18px; color: var(--text, var(--text));"></h3>
+                      <p id="historyPreviewDate" style="margin: 4px 0 0 0; font-size: 13px; color: var(--text-light, var(--text-light));"></p>
+                    </div>
+                  </div>
+
+                  <div id="historyPreviewBubbles" class="chat" style="flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 24px; background: transparent;">
+                    <!-- Bubbles injected here -->
+                  </div>
+
+                  <div style="padding: 24px; border-top: 1px solid var(--border, var(--surface-soft)); background: var(--surface, var(--surface));">
+                    <button id="historyPreviewLoadBtn" style="width: 100%; padding: 14px; border-radius: 12px; background: transparent; border: 1px solid var(--primary); color: var(--primary); font-weight: 600; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: all 0.2s;">
+                      <i data-lucide="rotate-ccw" style="width: 18px; height: 18px;"></i> Load in Chat
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================================================
+             SAVED ANSWERS
+             ================================================== -->
+
+        <section class="content-section info-section" id="saved-section">
+          <div class="page-content">
+            <h2>Saved Answers</h2>
+
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-end;
+              "
+            >
+              <p class="page-subtitle">
+                Access answers you have saved for future reference.
+              </p>
+              <button
+                id="clearSavedAnswersBtn"
+                class="history-clear-btn"
+                style="
+                  margin-bottom: 1rem;
+                  border-radius: 4px;
+                  border: 1px solid var(--danger, #e74c3c);
+                  color: var(--danger, #e74c3c);
+                  background: transparent;
+                  padding: 4px 8px;
+                  cursor: pointer;
+                "
+              >
+                Clear All
+              </button>
+            </div>
+
+            <div class="info-card saved-card">
+              <div class="empty-state">
+                <div class="empty-icon"><i data-lucide="heart" style="width: 48px; height: 48px;"></i></div>
+
+                <h3>No Saved Answers</h3>
+
+                <p>Your saved chatbot answers will appear here.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================================================
+             KNOWLEDGE & FAQ
+             ================================================== -->
+
+                <section class="content-section info-section" id="knowledge-section">
+          <div class="page-content" style="background: var(--surface); border-radius: 16px; padding: 32px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); margin: 24px; box-sizing: border-box;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+              <div style="display: flex; gap: 16px; align-items: center;">
+                <div style="width: 48px; height: 48px; background: var(--primary-light); border-radius: 12px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                  <img src="avatar.png" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%232D5A46\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'M12 8V4H8\'/%3E%3Crect width=\'16\' height=\'12\' x=\'4\' y=\'8\' rx=\'2\'/%3E%3Cpath d=\'M2 14h2\'/%3E%3Cpath d=\'M20 14h2\'/%3E%3Cpath d=\'M15 13v2\'/%3E%3Cpath d=\'M9 13v2\'/%3E%3C/svg%3E'" alt="Avatar" style="width:32px; height:32px; border-radius:50%;" />
+                </div>
+                <div>
+                  <h2 style="margin: 0; font-size: 24px; color: var(--text); font-weight: 700;">Knowledge Base</h2>
+                  <p style="margin: 4px 0 0; color: var(--text-light); font-size: 14px;">Manage your predefined questions and answers.</p>
+                </div>
+              </div>
+              <button id="addKnowledgeBtn" style="background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: background 0.2s; display: none;">
+                <i data-lucide="plus" style="width:16px;height:16px;"></i> Add New Q&A
+              </button>
+            </div>
+
+            <!-- ADMIN MODE PANEL -->
+            <div style="background: var(--surface-soft); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <i data-lucide="shield" style="width: 20px; height: 20px; color: var(--primary);"></i>
+                <div style="font-size: 14px; font-weight: 600; color: var(--text);">Admin Mode <span id="adminStatusBadge" class="locked" style="margin-left: 8px; font-size: 11px; padding: 2px 8px; border-radius: 12px;">Locked</span></div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <div id="adminMessage" style="font-size: 13px; font-weight: 500;"></div>
+                <div style="position: relative; display: flex; align-items: center;"><input type="password" id="adminPassword" placeholder="Admin Password" style="padding: 8px 32px 8px 12px; border: 1px solid var(--border-hover); border-radius: 6px; outline: none; font-size: 14px; width: 150px; box-sizing: border-box;" /><button id="toggleAdminPassword" style="position: absolute; right: 8px; background: none; border: none; padding: 0; cursor: pointer; display: flex; align-items: center; color: var(--text-light);" type="button" aria-label="Toggle Password Visibility"><i data-lucide="eye" style="width: 16px; height: 16px;"></i></button></div>
+                <button id="adminLoginButton" style="background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 14px;">Unlock</button>
+                <button id="adminLogoutButton" style="background: var(--danger); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 14px;" hidden>Lock</button>
+              </div>
+            </div>
+
+            <div style="position: relative; margin-bottom: 24px;">
+              <i data-lucide="search" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); width: 18px; height: 18px;"></i>
+              <input type="text" id="knowledgeSearch" placeholder="Search questions..." style="width: 100%; padding: 14px 16px 14px 44px; border: 1px solid var(--border); border-radius: 12px; font-size: 15px; outline: none; background: var(--surface-soft); box-sizing: border-box;" />
+            </div>
+
+            <div style="overflow-x: auto;">
+              <table style="width: 100%; border-collapse: collapse; text-align: left; min-width: 600px;">
+                <thead>
+                  <tr style="background: var(--surface-soft); color: var(--text); font-size: 13px; font-weight: 600;">
+                    <th style="padding: 16px; border-bottom: 1px solid var(--border); border-radius: 8px 0 0 8px; width: 50px;">#</th>
+                    <th style="padding: 16px; border-bottom: 1px solid var(--border); width: 30%;">Question (Keyword)</th>
+                    <th style="padding: 16px; border-bottom: 1px solid var(--border); width: 50%;">Response (Answer)</th>
+                    <th style="padding: 16px; border-bottom: 1px solid var(--border); border-radius: 0 8px 8px 0; text-align: center; width: 100px;">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="knowledgeTableBody">
+                  <!-- JS Will Populate This -->
+                </tbody>
+              </table>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 24px;">
+              <div style="flex: 1;"></div>
+              <div style="display: flex; gap: 8px; align-items: center;">
+                <button id="kbPagePrev" style="width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); display: flex; align-items: center; justify-content: center; color: var(--text-light); cursor: pointer;"><i data-lucide="chevron-left" style="width: 16px; height: 16px;"></i></button>
+                <button id="kbPageCurr" style="width: 32px; height: 32px; border-radius: 8px; border: none; background: var(--primary-light); color: var(--primary); font-weight: 600; cursor: default;">1</button>
+                <button id="kbPageNext" style="width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); display: flex; align-items: center; justify-content: center; color: var(--text-light); cursor: pointer;"><i data-lucide="chevron-right" style="width: 16px; height: 16px;"></i></button>
+              </div>
+              <div style="flex: 1; text-align: right; color: var(--text-light); font-size: 14px;">
+                Total: <span id="knowledgeTotalCount">0</span> Q&A
+              </div>
+            </div>            <div id="knowledgeModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center;">
+              <div style="background: var(--surface); border-radius: 16px; width: 90%; max-width: 500px; padding: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); position: relative;"><button id="knowledgeCloseIconBtn" style="position: absolute; top: 16px; right: 16px; background: none; border: none; cursor: pointer; color: var(--text-light);"><i data-lucide="x" style="width: 20px; height: 20px;"></i></button>
+                <h3 id="knowledgeFormTitle" style="margin: 0 0 16px 0; font-size: 20px; color: var(--text); padding-right: 24px;">Add New Q&A</h3>
+                <div id="knowledgeMessage" style="margin-bottom: 16px; font-size: 14px;"></div>
+                
+                <div style="margin-bottom: 16px;">
+                  <label style="display: block; font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 8px;">Question (Keyword)</label>
+                  <input type="text" id="knowledgeQuestion" placeholder="e.g., what is html" style="width: 100%; padding: 12px 16px; border: 1px solid var(--border); border-radius: 8px; font-size: 15px; outline: none; box-sizing: border-box;" />
+                </div>
+                
+                <div style="margin-bottom: 24px;">
+                  <label style="display: block; font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 8px;">Response (Answer)</label>
+                  <textarea id="knowledgeAnswer" placeholder="e.g., HTML is the standard markup language..." style="width: 100%; padding: 12px 16px; border: 1px solid var(--border); border-radius: 8px; font-size: 15px; outline: none; resize: vertical; min-height: 80px; box-sizing: border-box;"></textarea>
+                </div>
+                
+                <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                  <button id="knowledgeCancelButton" style="background: var(--surface-soft); color: var(--text-light); border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer;">Cancel</button>
+                  <button id="knowledgeSaveButton" style="background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer;">Add Question</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        
+
+        <section class="content-section info-section" id="about-section">
+          <div class="page-content" style="background: var(--surface); border-radius: 16px; padding: 32px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); margin: 24px; box-sizing: border-box;">
+            
+            <!-- Header -->
+            <div style="display: flex; gap: 16px; align-items: center; margin-bottom: 24px;">
+              <div style="width: 48px; height: 48px; background: var(--primary-light); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--primary);">
+                <i data-lucide="info" style="width: 24px; height: 24px;"></i>
+              </div>
+              <div>
+                <h2 style="margin: 0; font-size: 24px; color: var(--text); font-weight: 700;">About Us</h2>
+                <p style="margin: 4px 0 0; color: var(--text-light); font-size: 14px;">Learn more about Chatbot Assistant.</p>
+              </div>
+            </div>
+
+            <!-- About Box -->
+            <div style="background: transparent; border: none; padding: 0; margin-bottom: 32px;">
+              <h3 style="font-size: 16px; color: var(--text); margin: 0 0 16px 0;">Project Overview</h3>
+              <p style="color: var(--text-light); font-size: 14px; line-height: 1.6; margin: 0 0 16px 0;">
+                Chatbot Assistant is a conversational application developed as a Semester 2 academic project. It processes user input using keyword matching and predefined question-and-answer patterns, maintains conversation history, manages a file-based knowledge base, and integrates the Groq API for AI-powered responses.
+              </p>
+            </div>
+
+            <!-- Features Box -->
+            <div style="background: transparent; border: none; padding: 0; margin-bottom: 32px;">
+              <h3 style="font-size: 16px; color: var(--text); margin: 0 0 16px 0;">Key Features</h3>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px;">
+                <div style="background: var(--surface); border: 1px solid var(--border); padding: 12px 16px; border-radius: 8px; font-size: 14px; color: var(--text);">
+                  <strong style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;"><i data-lucide="message-circle" style="width: 16px; height: 16px; color: var(--primary);"></i> Smart Conversation</strong>
+                  <span style="color: var(--text-light); font-size: 13px; display: block;">Enables interactive, text-based communication between users and the chatbot.</span>
+                </div>
+                <div style="background: var(--surface); border: 1px solid var(--border); padding: 12px 16px; border-radius: 8px; font-size: 14px; color: var(--text);">
+                  <strong style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;"><i data-lucide="zap" style="width: 16px; height: 16px; color: #F97316;"></i> Automated Responses</strong>
+                  <span style="color: var(--text-light); font-size: 13px; display: block;">Provides predefined and relevant responses to commonly asked questions.</span>
+                </div>
+                <div style="background: var(--surface); border: 1px solid var(--border); padding: 12px 16px; border-radius: 8px; font-size: 14px; color: var(--text);">
+                  <strong style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;"><i data-lucide="hand" style="width: 16px; height: 16px; color: var(--primary);"></i> Greeting & Goodbye Detection</strong>
+                  <span style="color: var(--text-light); font-size: 13px; display: block;">Identifies common greeting and goodbye messages and responds appropriately.</span>
+                </div>
+                <div style="background: var(--surface); border: 1px solid var(--border); padding: 12px 16px; border-radius: 8px; font-size: 14px; color: var(--text);">
+                  <strong style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;"><i data-lucide="search" style="width: 16px; height: 16px; color: #8B5CF6;"></i> Keyword Matching</strong>
+                  <span style="color: var(--text-light); font-size: 13px; display: block;">Analyzes user input to identify relevant keywords and patterns for response generation.</span>
+                </div>
+                <div style="background: var(--surface); border: 1px solid var(--border); padding: 12px 16px; border-radius: 8px; font-size: 14px; color: var(--text);">
+                  <strong style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;"><i data-lucide="book" style="width: 16px; height: 16px; color: #06B6D4;"></i> Knowledge Base</strong>
+                  <span style="color: var(--text-light); font-size: 13px; display: block;">Stores, retrieves, and manages questions and answers using file-based data storage.</span>
+                </div>
+                <div style="background: var(--surface); border: 1px solid var(--border); padding: 12px 16px; border-radius: 8px; font-size: 14px; color: var(--text);">
+                  <strong style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;"><i data-lucide="edit-3" style="width: 16px; height: 16px; color: #F59E0B;"></i> Q&A Management</strong>
+                  <span style="color: var(--text-light); font-size: 13px; display: block;">Allows questions and corresponding responses to be added and updated within the knowledge base.</span>
+                </div>
+                <div style="background: var(--surface); border: 1px solid var(--border); padding: 12px 16px; border-radius: 8px; font-size: 14px; color: var(--text);">
+                  <strong style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;"><i data-lucide="history" style="width: 16px; height: 16px; color: var(--danger);"></i> Conversation History</strong>
+                  <span style="color: var(--text-light); font-size: 13px; display: block;">Records and displays previous messages for easy reference and continuity.</span>
+                </div>
+                <div style="background: var(--surface); border: 1px solid var(--border); padding: 12px 16px; border-radius: 8px; font-size: 14px; color: var(--text);">
+                  <strong style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;"><i data-lucide="cpu" style="width: 16px; height: 16px; color: #EC4899;"></i> AI-Powered Responses</strong>
+                  <span style="color: var(--text-light); font-size: 13px; display: block;">Uses the Groq API to generate AI-powered responses for questions requiring AI assistance.</span>
+                </div>
+                <div style="background: var(--surface); border: 1px solid var(--border); padding: 12px 16px; border-radius: 8px; font-size: 14px; color: var(--text);">
+                  <strong style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;"><i data-lucide="file-down" style="width: 16px; height: 16px; color: #3B82F6;"></i> Export Chat</strong>
+                  <span style="color: var(--text-light); font-size: 13px; display: block;">Allows users to select and export conversations as readable text files for backup and reference.</span>
+                </div>
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-bottom: 24px;">
+              <!-- Project Info Box -->
+              <div style="background: var(--surface-soft); border: 1px solid var(--border); border-radius: 12px; padding: 24px;">
+                <h3 style="font-size: 16px; color: var(--text); margin: 0 0 16px 0;">Project Information</h3>
+                <div style="color: var(--text-light); font-size: 14px; line-height: 2;">
+                  <div><strong style="color: var(--text);">Project Name:</strong> Chatbot Assistant</div>
+                  <div><strong style="color: var(--text);">Version:</strong> v1.9.10</div>
+                  <div><strong style="color: var(--text);">Project Type:</strong> Semester 2 Academic Project</div>
+                  <div><strong style="color: var(--text);">Technology Stack:</strong> C++, HTML, CSS, JavaScript</div>
+                  <div><strong style="color: var(--text);">AI Integration:</strong> Groq API</div>
+                </div>
+              </div>
+
+              <!-- AI Integration Box -->
+              <div style="background: var(--surface-soft); border: 1px solid var(--border); border-radius: 12px; padding: 24px;">
+                <h3 style="font-size: 16px; color: var(--text); margin: 0 0 16px 0;">AI Integration</h3>
+                <div style="color: var(--text-light); font-size: 14px; line-height: 2;">
+                  <div><strong style="color: var(--text);">AI Provider:</strong> Groq API</div>
+                  <div><strong style="color: var(--text);">Text Model:</strong> openai/gpt-oss-20b</div>
+                  <div><strong style="color: var(--text);">Vision Model:</strong> qwen/qwen3.8-27b</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Supported File Formats Box -->
+            <div style="background: transparent; border: none; padding: 0; margin-bottom: 32px;">
+              <h3 style="font-size: 16px; color: var(--text); margin: 0 0 16px 0;">Supported File Formats</h3>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+                <div>
+                  <strong style="display: flex; align-items: center; gap: 8px; color: var(--text); margin-bottom: 8px; font-size: 14px;"><i data-lucide="file-text" style="width: 16px; height: 16px; color: var(--primary);"></i> Text & Documents</strong>
+                  <ul style="margin: 0; padding-left: 24px; color: var(--text-light); font-size: 14px; line-height: 1.8;">
+                    <li><strong style="color: var(--text-light);">.txt</strong> — Plain text files processed natively.</li>
+                    <li><strong style="color: var(--text-light);">.docx</strong> — Microsoft Word documents with text extraction.</li>
+                  </ul>
+                </div>
+                <div>
+                  <strong style="display: flex; align-items: center; gap: 8px; color: var(--text); margin-bottom: 8px; font-size: 14px;"><i data-lucide="image" style="width: 16px; height: 16px; color: var(--primary);"></i> Images — Vision AI</strong>
+                  <ul style="margin: 0 0 8px 0; padding-left: 24px; color: var(--text-light); font-size: 14px; line-height: 1.8;">
+                    <li><strong style="color: var(--text-light);">.png</strong></li>
+                    <li><strong style="color: var(--text-light);">.jpg / .jpeg</strong></li>
+                    <li><strong style="color: var(--text-light);">.webp</strong></li>
+                    <li><strong style="color: var(--text-light);">.gif</strong></li>
+                    <li><strong style="color: var(--text-light);">.bmp</strong></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <!-- Development Team Box -->
+            <div style="background: transparent; border: none; padding: 0; margin-bottom: 32px;">
+              <h3 style="font-size: 16px; color: var(--text); margin: 0 0 16px 0;">Development Team</h3>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                <div style="background: var(--surface); border: 1px solid var(--border); padding: 16px; border-radius: 8px; text-align: center;">
+                  <strong style="display: block; color: var(--text); font-size: 15px;">Asutosh Sahu</strong>
+                  <span style="color: var(--text-light); font-size: 13px;">Developer</span>
+                </div>
+                <div style="background: var(--surface); border: 1px solid var(--border); padding: 16px; border-radius: 8px; text-align: center;">
+                  <strong style="display: block; color: var(--text); font-size: 15px;">Subhashree Sahu</strong>
+                  <span style="color: var(--text-light); font-size: 13px;">Developer</span>
+                </div>
+                <div style="background: var(--surface); border: 1px solid var(--border); padding: 16px; border-radius: 8px; text-align: center;">
+                  <strong style="display: block; color: var(--text); font-size: 15px;">Sahil Setha</strong>
+                  <span style="color: var(--text-light); font-size: 13px;">Developer</span>
+                </div>
+                <div style="background: var(--surface); border: 1px solid var(--border); padding: 16px; border-radius: 8px; text-align: center;">
+                  <strong style="display: block; color: var(--text); font-size: 15px;">Subham Behera</strong>
+                  <span style="color: var(--text-light); font-size: 13px;">Developer</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Project Footer -->
+            <div style="text-align: center; padding-top: 24px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 13px; line-height: 1.8;">
+              <strong style="color: var(--text-light); display: block; font-size: 14px;">Chatbot Assistant v1.9.10</strong>
+              <div>Semester 2 Academic Project</div>
+              <div>&copy; 2026 &mdash; Developed by Team</div>
+            </div>
+
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- ======================================================
+         MARKDOWN & HIGHLIGHT JS
+         ====================================================== -->
+    <script src="vendor/purify.min.js"></script>
+    <script src="vendor/marked.min.js"></script>
+    <script src="vendor/highlight.min.js"></script>
+    <link rel="stylesheet" href="vendor/github-dark.min.css" />
+
+    <!-- ======================================================
+         JAVASCRIPT
+         ====================================================== -->
+
+    <script src="script.js?v=134"></script>
+
+    <!-- ======================================================
+         CONSOLIDATED UI / BEHAVIOR LAYER
+         ------------------------------------------------------
+         Keeps the existing HTML structure and external
+         script.js/Groq flow intact.
+
+         This replaces the previous overlapping enhancement
+         scripts with ONE guarded MutationObserver and one
+         consolidated event layer. That avoids:
+         - recursive error-card creation
+         - multiple competing observers
+         - duplicate Edit buttons
+         - stuck "thinking" indicators
+         - broad false-positive error detection
+         - floating/misplaced Edit controls
+         ====================================================== -->
+    
+      <script>
+      </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

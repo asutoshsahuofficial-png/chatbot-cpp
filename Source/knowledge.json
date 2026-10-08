@@ -1,0 +1,666 @@
+[
+  {
+    "answer": "I am Chatbot Assistant, a simple AI chatbot project.",
+    "question": "what is your name"
+  },
+  {
+    "answer": "I am Chatbot Assistant. I can answer questions and help with common tasks.",
+    "question": "who are you"
+  },
+  {
+    "answer": "I can answer questions, use predefined knowledge, read supported files, and use the Groq AI API.",
+    "question": "what can you do"
+  },
+  {
+    "answer": "The chatbot first checks keywords and predefined knowledge. If there is no matching answer, it can ask the Groq AI API.",
+    "question": "how does this chatbot work"
+  },
+  {
+    "answer": "A chatbot is a program that communicates with users through text-based conversation.",
+    "question": "what is a chatbot"
+  },
+  {
+    "answer": "C++ is a general-purpose programming language used to build many types of software.",
+    "question": "what is c++"
+  },
+  {
+    "answer": "HTML is the standard markup language used to structure web pages.",
+    "question": "what is html"
+  },
+  {
+    "answer": "CSS is used to style and design web pages.",
+    "question": "what is css"
+  },
+  {
+    "answer": "JavaScript is a programming language commonly used to make web pages interactive.",
+    "question": "what is javascript"
+  },
+  {
+    "answer": "An API is a way for two software systems to communicate with each other.",
+    "question": "what is an api"
+  },
+  {
+    "answer": "Artificial Intelligence is technology that enables computers to perform tasks that normally require human-like intelligence.",
+    "question": "what is ai"
+  },
+  {
+    "answer": "File handling means creating, reading, writing, and updating data stored in files.",
+    "question": "what is file handling"
+  },
+  {
+    "answer": "MR. ASUTOSH SAHU & TEAMS",
+    "question": "Owner Name"
+  },
+  {
+    "answer": "Creative Techno College",
+    "question": "What is your College Name"
+  },
+  {
+    "answer": "A variable is a named memory location used to store a value that can change during program execution.",
+    "question": "what is a variable"
+  },
+  {
+    "answer": "A data type specifies what type of value a variable can store, such as int, float, char, and double.",
+    "question": "what is a data type"
+  },
+  {
+    "answer": "An integer is a whole number without a decimal point, such as 10, 25, or -5.",
+    "question": "what is int in c++"
+  },
+  {
+    "answer": "A char is a C++ data type used to store a single character, such as A, b, or 5.",
+    "question": "what is char in c++"
+  },
+  {
+    "answer": "A float is used to store decimal numbers, such as 10.5 or 3.14.",
+    "question": "what is float in c++"
+  },
+  {
+    "answer": "A function is a block of code designed to perform a specific task.",
+    "question": "what is a function"
+  },
+  {
+    "answer": "A loop repeatedly executes a block of code while a specified condition is true.",
+    "question": "what is a loop"
+  },
+  {
+    "answer": "The for loop is used when the number of repetitions is generally known in advance.",
+    "question": "what is for loop"
+  },
+  {
+    "answer": "The while loop repeats a block of code as long as its condition remains true.",
+    "question": "what is while loop"
+  },
+  {
+    "answer": "An if statement is used to execute code only when a specified condition is true.",
+    "question": "what is if statement"
+  },
+  {
+    "answer": "An array is a collection of elements of the same data type stored in contiguous memory locations.",
+    "question": "what is an array"
+  },
+  {
+    "answer": "A pointer is a variable that stores the memory address of another variable.",
+    "question": "what is a pointer"
+  },
+  {
+    "answer": "A class is a user-defined data type in C++ that groups data members and member functions together.",
+    "question": "what is a class"
+  },
+  {
+    "answer": "An object is an instance of a class.",
+    "question": "what is an object"
+  },
+  {
+    "answer": "Encapsulation means combining data and functions into a single unit, such as a class.",
+    "question": "what is encapsulation"
+  },
+  {
+    "answer": "Inheritance allows one class to acquire properties and functions of another class.",
+    "question": "what is inheritance"
+  },
+  {
+    "answer": "Polymorphism means one interface can have different forms. In C++, it includes function overloading, operator overloading, and overriding.",
+    "question": "what is polymorphism"
+  },
+  {
+    "answer": "A constructor is a special member function that is automatically called when an object is created.",
+    "question": "what is a constructor"
+  },
+  {
+    "answer": "A destructor is a special member function that is automatically called when an object is destroyed.",
+    "question": "what is a destructor"
+  },
+  {
+    "answer": "Function overloading means defining multiple functions with the same name but different parameters.",
+    "question": "what is function overloading"
+  },
+  {
+    "answer": "Operator overloading gives a new meaning or behavior to an operator for user-defined data types.",
+    "question": "what is operator overloading"
+  },
+  {
+    "answer": "HTML elements are the building blocks of an HTML page. They are commonly written using opening and closing tags.",
+    "question": "what is an html element"
+  },
+  {
+    "answer": "An HTML tag is a markup keyword used to define an element, such as <p>, <h1>, or <body>.",
+    "question": "what is an html tag"
+  },
+  {
+    "answer": "The <h1> tag is used to create the most important or largest heading in a typical HTML document.",
+    "question": "what is h1 in html"
+  },
+  {
+    "answer": "The <p> tag is used to define a paragraph in HTML.",
+    "question": "what is p tag in html"
+  },
+  {
+    "answer": "The <a> tag is used to create hyperlinks in HTML.",
+    "question": "what is anchor tag"
+  },
+  {
+    "answer": "The <img> tag is used to display an image on a web page.",
+    "question": "what is img tag"
+  },
+  {
+    "answer": "HTML forms are used to collect user input such as name, email, password, and other information.",
+    "question": "what is html form"
+  },
+  {
+    "answer": "CSS stands for Cascading Style Sheets. It controls the appearance, layout, colors, spacing, and typography of web pages.",
+    "question": "what does css stand for"
+  },
+  {
+    "answer": "A CSS selector is used to select the HTML elements that you want to style.",
+    "question": "what is a css selector"
+  },
+  {
+    "answer": "A class selector in CSS starts with a dot and is used to style elements that have a specific class.",
+    "question": "what is css class"
+  },
+  {
+    "answer": "An ID selector in CSS starts with # and targets an element with a specific id.",
+    "question": "what is css id"
+  },
+  {
+    "answer": "The CSS box model consists of content, padding, border, and margin.",
+    "question": "what is css box model"
+  },
+  {
+    "answer": "Flexbox is a CSS layout system used to arrange elements efficiently in rows or columns.",
+    "question": "what is flexbox"
+  },
+  {
+    "answer": "CSS Grid is a layout system used to create two-dimensional layouts using rows and columns.",
+    "question": "what is css grid"
+  },
+  {
+    "answer": "JavaScript can be used to change HTML content, modify styles, handle events, validate forms, and create dynamic web interfaces.",
+    "question": "what can javascript do"
+  },
+  {
+    "answer": "A JavaScript variable stores a value. Common ways to declare variables are let, const, and var.",
+    "question": "what is javascript variable"
+  },
+  {
+    "answer": "A function in JavaScript is a reusable block of code that performs a specific task.",
+    "question": "what is javascript function"
+  },
+  {
+    "answer": "An event in JavaScript is an action such as a click, key press, mouse movement, or form submission.",
+    "question": "what is javascript event"
+  },
+  {
+    "answer": "The DOM stands for Document Object Model. It represents an HTML document as objects that JavaScript can access and modify.",
+    "question": "what is dom"
+  },
+  {
+    "answer": "An event listener is used in JavaScript to run a function when a specific event occurs.",
+    "question": "what is event listener"
+  },
+  {
+    "answer": "A string is a sequence of characters used to represent text.",
+    "question": "what is a string"
+  },
+  {
+    "answer": "A boolean value has two possible states: true or false.",
+    "question": "what is boolean"
+  },
+  {
+    "answer": "An array in JavaScript is a data structure used to store multiple values in a single variable.",
+    "question": "what is javascript array"
+  },
+  {
+    "answer": "JSON stands for JavaScript Object Notation. It is a lightweight format commonly used for storing and exchanging structured data.",
+    "question": "what is json"
+  },
+  {
+    "answer": "A browser is software used to access and display websites and web applications.",
+    "question": "what is a web browser"
+  },
+  {
+    "answer": "Frontend development focuses on the part of a website or application that users see and interact with.",
+    "question": "what is frontend"
+  },
+  {
+    "answer": "Backend development handles server-side logic, data processing, APIs, authentication, and database operations.",
+    "question": "what is backend"
+  },
+  {
+    "answer": "HTTP is a protocol used for communication between web clients such as browsers and web servers.",
+    "question": "what is http"
+  },
+  {
+    "answer": "An API endpoint is a specific URL through which an application can send or receive data from a service.",
+    "question": "what is api endpoint"
+  },
+  {
+    "answer": "The Groq API allows applications to send requests to supported AI models and receive generated responses.",
+    "question": "what is groq api"
+  },
+  {
+    "answer": "Keyword matching checks user input for specific words or patterns and uses them to find a suitable predefined response.",
+    "question": "what is keyword matching"
+  },
+  {
+    "answer": "A predefined response is an answer stored in advance and returned when the user's input matches a known question or keyword.",
+    "question": "what is predefined response"
+  },
+  {
+    "answer": "A knowledge base is a collection of stored questions, answers, and related information used by the chatbot to provide responses.",
+    "question": "what is knowledge base"
+  },
+  {
+    "answer": "Conversation history stores previous user messages and chatbot responses so they can be viewed later.",
+    "question": "what is conversation history"
+  },
+  {
+    "answer": "Exporting chat means saving selected conversation history into a file so it can be stored, shared, or reviewed later.",
+    "question": "what is chat export"
+  },
+  {
+    "answer": "Text file handling allows a program to create, open, read, write, append, and close text files.",
+    "question": "what is text file handling"
+  },
+  {
+    "answer": "In C++, ifstream is commonly used to read data from a file.",
+    "question": "what is ifstream"
+  },
+  {
+    "answer": "In C++, ofstream is commonly used to write data to a file.",
+    "question": "what is ofstream"
+  },
+  {
+    "answer": "In C++, fstream can be used for both reading from and writing to files.",
+    "question": "what is fstream"
+  },
+  {
+    "answer": "The main purpose of file closing is to release resources and ensure pending data is properly written.",
+    "question": "why close a file"
+  },
+  {
+    "answer": "A compiler converts source code written in a programming language such as C++ into machine code or another lower-level representation that can be executed.",
+    "question": "what is a compiler"
+  },
+  {
+    "answer": "A syntax error occurs when code does not follow the rules of the programming language.",
+    "question": "what is syntax error"
+  },
+  {
+    "answer": "A runtime error occurs while a program is executing, such as attempting to access invalid data or divide by zero.",
+    "question": "what is runtime error"
+  },
+  {
+    "answer": "Debugging is the process of finding and fixing errors or bugs in a program.",
+    "question": "what is debugging"
+  },
+  {
+    "answer": "A programming algorithm is a step-by-step procedure used to solve a problem or perform a task.",
+    "question": "what is an algorithm"
+  },
+  {
+    "answer": "The main() function is the starting point of a C++ program where program execution normally begins.",
+    "question": "what is main function in c++"
+  },
+  {
+    "answer": "The #include directive is used to include a header file in a C++ program.",
+    "question": "what is include in c++"
+  },
+  {
+    "answer": "The iostream header provides standard input and output features such as cin and cout.",
+    "question": "what is iostream"
+  },
+  {
+    "answer": "cout is used in C++ to display output on the screen.",
+    "question": "what is cout"
+  },
+  {
+    "answer": "cin is used in C++ to take input from the user.",
+    "question": "what is cin"
+  },
+  {
+    "answer": "The << operator is commonly used with cout to send data to the output stream.",
+    "question": "what is insertion operator in c++"
+  },
+  {
+    "answer": "The >> operator is commonly used with cin to receive input from the user.",
+    "question": "what is extraction operator in c++"
+  },
+  {
+    "answer": "A constant is a value that should not be changed during program execution.",
+    "question": "what is a constant"
+  },
+  {
+    "answer": "The const keyword is used to declare a variable whose value cannot normally be changed after initialization.",
+    "question": "what is const in c++"
+  },
+  {
+    "answer": "A reference is another name or alias for an existing variable.",
+    "question": "what is reference in c++"
+  },
+  {
+    "answer": "The address-of operator & is used to obtain the memory address of a variable.",
+    "question": "what is address operator in c++"
+  },
+  {
+    "answer": "The dereference operator * is used with a pointer to access the value stored at the pointed memory address.",
+    "question": "what is dereference operator"
+  },
+  {
+    "answer": "Type casting means converting a value from one data type to another.",
+    "question": "what is type casting"
+  },
+  {
+    "answer": "The switch statement is used to select one block of code from multiple possible cases.",
+    "question": "what is switch statement"
+  },
+  {
+    "answer": "The break statement is used to terminate a loop or switch statement immediately.",
+    "question": "what is break statement"
+  },
+  {
+    "answer": "The continue statement skips the remaining statements of the current loop iteration and moves to the next iteration.",
+    "question": "what is continue statement"
+  },
+  {
+    "answer": "The do-while loop executes its body at least once before checking the condition.",
+    "question": "what is do while loop"
+  },
+  {
+    "answer": "Recursion is a technique in which a function calls itself to solve a problem.",
+    "question": "what is recursion"
+  },
+  {
+    "answer": "The scope of a variable defines the part of a program where that variable can be accessed.",
+    "question": "what is variable scope"
+  },
+  {
+    "answer": "A local variable is declared inside a function or block and can normally be used only within that scope.",
+    "question": "what is local variable"
+  },
+  {
+    "answer": "A global variable is declared outside functions and can be accessed from multiple parts of a program according to its visibility.",
+    "question": "what is global variable"
+  },
+  {
+    "answer": "A namespace is used to organize identifiers and help prevent naming conflicts in C++.",
+    "question": "what is namespace in c++"
+  },
+  {
+    "answer": "The std namespace contains many standard C++ library features such as cout, cin, and string.",
+    "question": "what is std in c++"
+  },
+  {
+    "answer": "A header file contains declarations and other information that can be included in a program.",
+    "question": "what is header file"
+  },
+  {
+    "answer": "The C++ Standard Library provides ready-made classes, functions, containers, and algorithms for common programming tasks.",
+    "question": "what is c++ standard library"
+  },
+  {
+    "answer": "A parameter is a variable listed in a function definition that receives a value when the function is called.",
+    "question": "what is function parameter"
+  },
+  {
+    "answer": "An argument is the actual value passed to a function when the function is called.",
+    "question": "what is function argument"
+  },
+  {
+    "answer": "A return statement sends a value or control back from a function to the calling code.",
+    "question": "what is return statement"
+  },
+  {
+    "answer": "A void function is a function that does not return a value.",
+    "question": "what is void function"
+  },
+  {
+    "answer": "A two-dimensional array stores data in a row-and-column structure.",
+    "question": "what is two dimensional array"
+  },
+  {
+    "answer": "A string literal is a sequence of characters written inside double quotation marks.",
+    "question": "what is string literal"
+  },
+  {
+    "answer": "An enumeration or enum is a user-defined type that contains a set of named integral constants.",
+    "question": "what is enum in c++"
+  },
+  {
+    "answer": "A struct is a user-defined type that can group different types of data members together.",
+    "question": "what is structure in c++"
+  },
+  {
+    "answer": "A template allows C++ code to work with different data types without rewriting the same logic.",
+    "question": "what is template in c++"
+  },
+  {
+    "answer": "An exception is an event that occurs during program execution and can be handled using exception-handling mechanisms.",
+    "question": "what is exception in c++"
+  },
+  {
+    "answer": "The try block contains code that may generate an exception.",
+    "question": "what is try block"
+  },
+  {
+    "answer": "The catch block is used to handle an exception thrown by a try block.",
+    "question": "what is catch block"
+  },
+  {
+    "answer": "The throw keyword is used to signal or raise an exception in C++.",
+    "question": "what is throw in c++"
+  },
+  {
+    "answer": "The <title> element defines the title shown in the browser tab for an HTML document.",
+    "question": "what is title tag in html"
+  },
+  {
+    "answer": "The <head> element contains metadata and other information about an HTML document.",
+    "question": "what is head tag"
+  },
+  {
+    "answer": "The <body> element contains the visible content of an HTML web page.",
+    "question": "what is body tag"
+  },
+  {
+    "answer": "The <br> element creates a line break in HTML.",
+    "question": "what is br tag"
+  },
+  {
+    "answer": "The <hr> element creates a thematic horizontal line or separator in HTML.",
+    "question": "what is hr tag"
+  },
+  {
+    "answer": "An ordered list displays list items with numbers or letters.",
+    "question": "what is ordered list in html"
+  },
+  {
+    "answer": "An unordered list displays list items using bullets or similar markers.",
+    "question": "what is unordered list in html"
+  },
+  {
+    "answer": "The <table> element is used to represent tabular data arranged in rows and columns.",
+    "question": "what is table in html"
+  },
+  {
+    "answer": "The <tr> element defines a table row in HTML.",
+    "question": "what is tr tag"
+  },
+  {
+    "answer": "The <td> element defines a table data cell.",
+    "question": "what is td tag"
+  },
+  {
+    "answer": "The <th> element defines a header cell in an HTML table.",
+    "question": "what is th tag"
+  },
+  {
+    "answer": "Semantic HTML uses meaningful elements such as header, nav, main, section, and footer to describe page structure.",
+    "question": "what is semantic html"
+  },
+  {
+    "answer": "The alt attribute provides alternative text for an image and improves accessibility when the image cannot be displayed.",
+    "question": "what is alt attribute"
+  },
+  {
+    "answer": "An HTML attribute provides additional information or properties for an HTML element.",
+    "question": "what is html attribute"
+  },
+  {
+    "answer": "The viewport meta tag helps control how a web page is displayed on different screen sizes and devices.",
+    "question": "what is viewport meta tag"
+  },
+  {
+    "answer": "Responsive web design makes a website adapt its layout and content to different screen sizes.",
+    "question": "what is responsive web design"
+  },
+  {
+    "answer": "A media query allows CSS rules to be applied based on conditions such as screen width or device characteristics.",
+    "question": "what is media query"
+  },
+  {
+    "answer": "The CSS margin property controls the space outside an element's border.",
+    "question": "what is margin in css"
+  },
+  {
+    "answer": "The CSS padding property controls the space between an element's content and its border.",
+    "question": "what is padding in css"
+  },
+  {
+    "answer": "The CSS border property is used to create a visible boundary around an element.",
+    "question": "what is border in css"
+  },
+  {
+    "answer": "The CSS display property controls how an element participates in the layout, such as block, inline, flex, or grid.",
+    "question": "what is display property in css"
+  },
+  {
+    "answer": "The position property in CSS controls how an element is positioned in the document.",
+    "question": "what is position in css"
+  },
+  {
+    "answer": "The z-index property controls the stacking order of positioned elements.",
+    "question": "what is z index"
+  },
+  {
+    "answer": "The hover pseudo-class applies styles when the user points the mouse over an element.",
+    "question": "what is hover in css"
+  },
+  {
+    "answer": "A CSS transition creates a smooth change between different property values.",
+    "question": "what is css transition"
+  },
+  {
+    "answer": "A CSS animation allows an element to change styles through defined keyframes over time.",
+    "question": "what is css animation"
+  },
+  {
+    "answer": "The CSS border-radius property is used to create rounded corners.",
+    "question": "what is border radius"
+  },
+  {
+    "answer": "The CSS box-shadow property adds a shadow effect around an element's box.",
+    "question": "what is box shadow"
+  },
+  {
+    "answer": "The JavaScript console is a browser developer-tool area used to inspect output, warnings, and errors.",
+    "question": "what is javascript console"
+  },
+  {
+    "answer": "The console.log() method is commonly used to print information to the browser console for debugging.",
+    "question": "what is console log"
+  },
+  {
+    "answer": "The typeof operator in JavaScript is used to determine the type of a value.",
+    "question": "what is typeof in javascript"
+  },
+  {
+    "answer": "The strict equality operator === compares both value and data type without performing type conversion.",
+    "question": "what is triple equals in javascript"
+  },
+  {
+    "answer": "let is used to declare a block-scoped variable whose value can be reassigned.",
+    "question": "what is let in javascript"
+  },
+  {
+    "answer": "const is used to declare a block-scoped binding that cannot be reassigned after initialization.",
+    "question": "what is const in javascript"
+  },
+  {
+    "answer": "An object in JavaScript stores data as properties and can also contain methods.",
+    "question": "what is object in javascript"
+  },
+  {
+    "answer": "A JavaScript method is a function stored as a property of an object.",
+    "question": "what is method in javascript"
+  },
+  {
+    "answer": "JSON.parse() converts a JSON string into a JavaScript value or object.",
+    "question": "what is json parse"
+  },
+  {
+    "answer": "JSON.stringify() converts a JavaScript value or object into a JSON string.",
+    "question": "what is json stringify"
+  },
+  {
+    "answer": "localStorage allows a web application to store small amounts of data in the user's browser.",
+    "question": "what is localstorage"
+  },
+  {
+    "answer": "sessionStorage stores data in the browser for the duration of a page session.",
+    "question": "what is session storage"
+  },
+  {
+    "answer": "The Fetch API is used in JavaScript to make HTTP requests and work with responses asynchronously.",
+    "question": "what is fetch api"
+  },
+  {
+    "answer": "A Promise in JavaScript represents the eventual completion or failure of an asynchronous operation.",
+    "question": "what is promise in javascript"
+  },
+  {
+    "answer": "async and await provide a cleaner way to work with asynchronous JavaScript operations.",
+    "question": "what is async await"
+  },
+  {
+    "answer": "Client-side validation checks user input in the browser before data is submitted.",
+    "question": "what is client side validation"
+  },
+  {
+    "answer": "A web server is a system that receives HTTP requests and provides web pages, files, or other responses.",
+    "question": "what is web server"
+  },
+  {
+    "answer": "A URL is the address used to locate a resource on the internet or within a web application.",
+    "question": "what is url"
+  },
+  {
+    "answer": "The frontend of your chatbot is mainly responsible for the user interface, user input, messages, and interaction.",
+    "question": "what is chatbot frontend"
+  },
+  {
+    "answer": "The backend of a chatbot can handle API communication, data processing, file operations, and application logic.",
+    "question": "what is chatbot backend"
+  }
+]
